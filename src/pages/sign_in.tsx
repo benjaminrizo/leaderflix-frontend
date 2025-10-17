@@ -1,8 +1,10 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate} from "react-router-dom";
 import logo from "../assets/logo.png";
+import { loginUsuario } from "../services/api";
 
 const SignIn: React.FC = () => {
+  const navigate = useNavigate();
   const [usuario, setUsuario] = useState("");
   const [contrasena, setContrasena] = useState("");
   const [aceptaTerminos, setAceptaTerminos] = useState(false);
@@ -19,9 +21,9 @@ const SignIn: React.FC = () => {
     return regex.test(password);
   };
 
-  const manejarSubmit = (e: React.FormEvent) => {
+  const manejarSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     const nuevosErrores: string[] = [];
 
     // Validar todos los campos
@@ -49,9 +51,20 @@ const SignIn: React.FC = () => {
       return;
     }
 
-    // Si todo está bien
-    setErrores([]);
-    alert("✅ Inicio de sesión exitoso (simulado)");
+    try {
+      const data = await loginUsuario(usuario, contrasena);
+
+      //Guarda el token en localStorage (si tu backend lo devuelve)
+      if (data.token) {
+        localStorage.setItem("token", data.token);
+      }
+
+      alert("Inicio de sesión exitoso");
+      navigate("/home"); // Redirige al dashboard o página principal
+    } catch (error: any) {
+      console.error("Error:", error);
+      setErrores([error.message || "Credenciales inválidas."]);
+    }
   };
 
   return (
@@ -101,9 +114,9 @@ const SignIn: React.FC = () => {
           </div>
 
           <div className="flex items-center space-x-2 text-xs text-gray-300">
-            <input 
-              type="checkbox" 
-              id="terms" 
+            <input
+              type="checkbox"
+              id="terms"
               checked={aceptaTerminos}
               onChange={(e) => setAceptaTerminos(e.target.checked)}
             />

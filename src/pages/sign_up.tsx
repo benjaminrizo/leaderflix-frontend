@@ -1,9 +1,11 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import logo from "../assets/logo.png"; // 👈 Importar como en sign_in
+import logo from "../assets/logo.png"; //  Importar como en sign_in
+import { registrarUsuario } from "../services/api";
 
-export default function SignUp() {  
-  const navigate = useNavigate(); // 👈 Hook para navegación
+
+export default function SignUp() {
+  const navigate = useNavigate(); //  Hook para navegación
   const [usuario, setUsuario] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [contrasena, setContrasena] = useState<string>("");
@@ -21,9 +23,9 @@ export default function SignUp() {
     return regex.test(password);
   };
 
-  const manejarSubmit = (e: React.FormEvent) => {
+  const manejarSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     const nuevosErrores: string[] = [];
 
     if (!usuario) {
@@ -59,15 +61,20 @@ export default function SignUp() {
       return;
     }
 
-    setErrores([]);
-    alert("¡Registro exitoso!");
-    navigate("/sign_in"); // Redirige al login después del registro
+    try {
+      await registrarUsuario(usuario, email, contrasena);
+      alert("¡Registro exitoso!");
+      navigate("/sign_in"); // Redirige al login después del registro
+    } catch (error: any) {
+      console.error("Error:", error);
+      setErrores([error.message || "Error del servidor."]);
+    }
   };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-[#141414]">
       <div className="bg-black/80 p-10 rounded-2xl shadow-lg w-96 text-white relative">
-        {/* 👇 Botón de volver */}
+        {/*  Botón de volver */}
         <button
           onClick={() => navigate(-1)}
           className="absolute top-4 left-4 text-gray-400 hover:text-white transition-colors"
@@ -90,10 +97,10 @@ export default function SignUp() {
         </button>
 
         <div className="flex flex-col items-center mb-8">
-          <img 
-            src={logo} 
-            alt="Leaderflix logo" 
-            className="w-28 h-28 mb-4 mx-auto" 
+          <img
+            src={logo}
+            alt="Leaderflix logo"
+            className="w-28 h-28 mb-4 mx-auto"
           />
           <h1 className="text-2xl font-bold text-center mb-2">Regístrate</h1>
           <p className="text-gray-400 text-sm text-center">
@@ -151,9 +158,9 @@ export default function SignUp() {
           </div>
 
           <div className="flex items-center space-x-2 text-xs text-gray-300">
-            <input 
-              type="checkbox" 
-              id="terms" 
+            <input
+              type="checkbox"
+              id="terms"
               checked={aceptaTerminos}
               onChange={(e) => setAceptaTerminos(e.target.checked)}
             />
@@ -171,8 +178,8 @@ export default function SignUp() {
             </div>
           )}
 
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             className="bg-red-600 hover:bg-red-700 p-2 rounded font-semibold transition-colors"
           >
             Registrarse
