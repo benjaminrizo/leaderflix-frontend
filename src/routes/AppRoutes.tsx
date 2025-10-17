@@ -3,6 +3,8 @@ import SignIn from "../pages/sign_in";
 import SignUp from "../pages/sign_up";
 import Home from "../pages/home";
 import Profile from "../pages/profile";
+import ForgotPassword from "../pages/forgotPassword";
+
 
 
 
@@ -15,6 +17,8 @@ const AppRoutes = () => {
         <Route path="/sign_up" element={<SignUp />} />
         <Route path="/home" element={<Home />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/forgot_password" element={<ForgotPassword />} />
+
 
 
       </Routes>
