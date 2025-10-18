@@ -1,5 +1,7 @@
 import Navbar from "../components/Navbar";
 import MovieSection from "../components/MovieSection";
+import Footer from "../components/Footer";
+
 
 export default function Home() {
   return (
@@ -11,6 +13,7 @@ export default function Home() {
         <MovieSection title="Nuevos lanzamientos" />
         <MovieSection title="Series destacadas" />
       </main>
+      <Footer />
     </div>
   );
 }

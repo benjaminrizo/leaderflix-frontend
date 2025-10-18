@@ -9,6 +9,7 @@ import ResetPassword from "../pages/reset_password";
 
 
 
+
 const AppRoutes = () => {
   return (
     <BrowserRouter>
@@ -20,6 +21,7 @@ const AppRoutes = () => {
         <Route path="/profile" element={<Profile />} />
         <Route path="/forgot_password" element={<ForgotPassword />} />
         <Route path="/reset_password" element={<ResetPassword />} />
+
 
 
 
