@@ -1,4 +1,6 @@
 import { Search, Star, User } from "lucide-react";
+import { Link } from "react-router-dom";
+
 
 export default function Navbar() {
   return (
@@ -29,9 +31,11 @@ export default function Navbar() {
         <button className="flex items-center gap-2 text-gray-300 hover:text-white transition">
           <Star size={18} /> Favoritas
         </button>
-        <button className="p-2 bg-gray-700 rounded-full hover:bg-gray-600">
-          <User />
-        </button>
+        <Link to="/profile">
+          <button className="p-2 bg-gray-700 rounded-full hover:bg-gray-600 transition">
+            <User />
+          </button>
+        </Link>
       </div>
     </nav>
   );
