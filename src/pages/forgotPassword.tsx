@@ -10,13 +10,13 @@ import logo from "../assets/logo.png";
 const ForgotPassword: React.FC = () => {
   // Hook for programmatic navigation
   const navigate = useNavigate();
-  
+
   // State to store the email input value
   const [email, setEmail] = useState("");
-  
+
   // State to store success message
   const [mensaje, setMensaje] = useState("");
-  
+
   // State to store error message
   const [error, setError] = useState("");
 
@@ -25,20 +25,39 @@ const ForgotPassword: React.FC = () => {
    * Validates email field and simulates sending a recovery email
    * @param {React.FormEvent} e - Form event
    */
-  const manejarSubmit = (e: React.FormEvent) => {
+  const manejarSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validate that email field is not empty
     if (!email) {
       setError("Por favor ingresa tu correo electrónico.");
       setMensaje("");
       return;
     }
 
-    // Clear error and show success message
-    setError("");
-    setMensaje("Se ha enviado un correo para restablecer tu contraseña.");
+    try {
+      setError("");
+      setMensaje("");
+
+      const response = await fetch("https://leaderflix-banck.onrender.com/password/forgot-password", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.msg || "Error al enviar el correo");
+      }
+
+      setMensaje(data.msg || "Se ha enviado un correo para restablecer tu contraseña.");
+    } catch (err: any) {
+      setError(err.message || "Error al enviar el correo. Inténtalo nuevamente.");
+    }
   };
+
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-[#141414]">
