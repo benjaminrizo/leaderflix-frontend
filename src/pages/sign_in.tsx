@@ -121,12 +121,13 @@ const SignIn: React.FC = () => {
             </div>
           </div>
 
-          <div className="flex justify-between text-xs text-gray-400">
+          <div className="flex justify-center text-xs text-gray-400">
             <Link to="/forgot_password" className="hover:text-red-500">
               ¿Olvidaste tu contraseña?
             </Link>
           </div>
 
+          {/* Campo Aceptar terminos y condiciones*/}
           <div className="flex items-center justify-center space-x-2 text-xs text-gray-300">
             <input
               type="checkbox"

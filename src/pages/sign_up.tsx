@@ -1,14 +1,16 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { registrarUsuario } from "../services/api";
-
+import { Eye, EyeOff } from "lucide-react";
 
 export default function SignUp() {
-  const navigate = useNavigate(); //  Hook para navegación
+  const navigate = useNavigate();
   const [usuario, setUsuario] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [contrasena, setContrasena] = useState<string>("");
   const [confirmarContrasena, setConfirmarContrasena] = useState<string>("");
+  const [mostrarContrasena, setMostrarContrasena] = useState(false);
+  const [mostrarConfirmarContrasena, setMostrarConfirmarContrasena] = useState(false);
   const [aceptaTerminos, setAceptaTerminos] = useState(false);
   const [errores, setErrores] = useState<string[]>([]);
 
@@ -63,7 +65,7 @@ export default function SignUp() {
     try {
       await registrarUsuario(usuario, email, contrasena);
       alert("¡Registro exitoso!");
-      navigate("/sign_in"); // Redirige al login después del registro
+      navigate("/sign_in");
     } catch (error: any) {
       console.error("Error:", error);
       setErrores([error.message || "Error del servidor."]);
@@ -73,7 +75,7 @@ export default function SignUp() {
   return (
     <div className="flex items-center justify-center min-h-screen bg-[#141414]">
       <div className="bg-black/80 p-10 rounded-2xl shadow-lg w-96 text-white relative">
-        {/*  Botón de volver */}
+        {/* Botón de volver */}
         <button
           onClick={() => navigate(-1)}
           className="absolute top-4 left-4 text-gray-400 hover:text-white transition-colors"
@@ -96,7 +98,7 @@ export default function SignUp() {
         </button>
 
         <div className="flex flex-col items-center mb-8">
-        <img src="/Logo.png" alt="Leaderflix logo" className="w-28 h-28 mb-4 mx-auto" />
+          <img src="/Logo.png" alt="Leaderflix logo" className="w-28 h-28 mb-4 mx-auto" />
           <h1 className="text-2xl font-bold text-center mb-2">Regístrate</h1>
           <p className="text-gray-400 text-sm text-center">
             Únete a Leaderflix
@@ -128,31 +130,59 @@ export default function SignUp() {
             />
           </div>
 
+          {/* Campo Contraseña con ojo */}
           <div>
             <label className="block text-sm mb-1 text-gray-300">Contraseña</label>
-            <input
-              type="password"
-              value={contrasena}
-              onChange={(e) => setContrasena(e.target.value)}
-              className="w-full p-2 rounded bg-[#1c1c1c] border border-gray-700 focus:outline-none focus:border-red-600"
-              placeholder="Mínimo 8 caracteres"
-            />
+            <div className="relative">
+              <input
+                type={mostrarContrasena ? "text" : "password"}
+                value={contrasena}
+                onChange={(e) => setContrasena(e.target.value)}
+                className="w-full p-2 rounded bg-[#1c1c1c] border border-gray-700 focus:outline-none focus:border-red-600 pr-10"
+                placeholder="Mínimo 8 caracteres"
+              />
+              <button
+                type="button"
+                onClick={() => setMostrarContrasena(!mostrarContrasena)}
+                className="absolute right-3 top-2.5 text-gray-400 hover:text-gray-200 transition"
+                aria-label={
+                  mostrarContrasena ? "Ocultar contraseña" : "Mostrar contraseña"
+                }
+              >
+                {mostrarContrasena ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
           </div>
 
+          {/* Campo Confirmar Contraseña con ojo */}
           <div>
             <label className="block text-sm mb-1 text-gray-300">
               Confirmar Contraseña
             </label>
-            <input
-              type="password"
-              value={confirmarContrasena}
-              onChange={(e) => setConfirmarContrasena(e.target.value)}
-              className="w-full p-2 rounded bg-[#1c1c1c] border border-gray-700 focus:outline-none focus:border-red-600"
-              placeholder="Confirma tu contraseña"
-            />
+            <div className="relative">
+              <input
+                type={mostrarConfirmarContrasena ? "text" : "password"}
+                value={confirmarContrasena}
+                onChange={(e) => setConfirmarContrasena(e.target.value)}
+                className="w-full p-2 rounded bg-[#1c1c1c] border border-gray-700 focus:outline-none focus:border-red-600 pr-10"
+                placeholder="Confirma tu contraseña"
+              />
+              <button
+                type="button"
+                onClick={() => setMostrarConfirmarContrasena(!mostrarConfirmarContrasena)}
+                className="absolute right-3 top-2.5 text-gray-400 hover:text-gray-200 transition"
+                aria-label={
+                  mostrarConfirmarContrasena
+                    ? "Ocultar confirmación de contraseña"
+                    : "Mostrar confirmación de contraseña"
+                }
+              >
+                {mostrarConfirmarContrasena ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
           </div>
 
-          <div className="flex items-center space-x-2 text-xs text-gray-300">
+          <div className="flex items-center justify-center space-x-2 text-xs text-gray-300">
             <input
               type="checkbox"
               id="terms"
