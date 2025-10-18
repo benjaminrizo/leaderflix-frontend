@@ -54,7 +54,7 @@ const SignIn: React.FC = () => {
     try {
       const data = await loginUsuario(usuario, contrasena);
 
-      //Guarda el token en localStorage (si tu backend lo devuelve)
+      //Guarda el token en localStorage 
       if (data.token) {
         localStorage.setItem("token", data.token);
       }
@@ -108,12 +108,13 @@ const SignIn: React.FC = () => {
           </div>
 
           <div className="flex justify-between text-xs text-gray-400">
-            <a href="#" className="hover:text-red-500">
+            <Link to="/forgot_password" className="hover:text-red-500">
               ¿Olvidaste tu contraseña?
-            </a>
+            </Link>
           </div>
 
-          <div className="flex items-center space-x-2 text-xs text-gray-300">
+
+          <div className="flex items-center justify-center space-x-2 text-xs text-gray-300">
             <input
               type="checkbox"
               id="terms"
@@ -122,6 +123,7 @@ const SignIn: React.FC = () => {
             />
             <label htmlFor="terms">Acepto Términos y Condiciones</label>
           </div>
+
 
           {errores.length > 0 && (
             <div className="bg-red-900/30 border border-red-600 rounded p-3 space-y-1">
