@@ -1,11 +1,13 @@
 import React, { useState } from "react";
-import { Link, useNavigate} from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { loginUsuario } from "../services/api";
+import { Eye, EyeOff } from "lucide-react";
 
 const SignIn: React.FC = () => {
   const navigate = useNavigate();
   const [usuario, setUsuario] = useState("");
   const [contrasena, setContrasena] = useState("");
+  const [mostrarContrasena, setMostrarContrasena] = useState(false);
   const [aceptaTerminos, setAceptaTerminos] = useState(false);
   const [errores, setErrores] = useState<string[]>([]);
 
@@ -25,7 +27,6 @@ const SignIn: React.FC = () => {
 
     const nuevosErrores: string[] = [];
 
-    // Validar todos los campos
     if (!usuario) {
       nuevosErrores.push("El correo electrónico es obligatorio.");
     } else if (!validarEmail(usuario)) {
@@ -44,7 +45,6 @@ const SignIn: React.FC = () => {
       nuevosErrores.push("Debes aceptar los Términos y Condiciones.");
     }
 
-    // Si hay errores, mostrarlos y detener
     if (nuevosErrores.length > 0) {
       setErrores(nuevosErrores);
       return;
@@ -53,13 +53,12 @@ const SignIn: React.FC = () => {
     try {
       const data = await loginUsuario(usuario, contrasena);
 
-      //Guarda el token en localStorage 
       if (data.token) {
         localStorage.setItem("token", data.token);
       }
 
       alert("Inicio de sesión exitoso");
-      navigate("/home"); // Redirige al dashboard o página principal
+      navigate("/home");
     } catch (error: any) {
       console.error("Error:", error);
       setErrores([error.message || "Credenciales inválidas."]);
@@ -70,7 +69,7 @@ const SignIn: React.FC = () => {
     <div className="flex items-center justify-center min-h-screen bg-[#141414]">
       <div className="bg-black/80 p-10 rounded-2xl shadow-lg w-96 text-white">
         <div className="flex flex-col items-center mb-8">
-        <img src="/Logo.png" alt="Logo" />
+          <img src="/Logo.png" alt="Logo" />
           <h1 className="text-2xl font-bold text-center mb-2">Inicia sesión</h1>
           <p className="text-gray-400 text-sm text-center">
             Bienvenido de nuevo a Leaderflix
@@ -91,15 +90,28 @@ const SignIn: React.FC = () => {
             />
           </div>
 
+          {/* Campo de contraseña con botón para mostrar/ocultar */}
           <div>
             <label className="block text-sm mb-1 text-gray-300">Contraseña</label>
-            <input
-              type="password"
-              value={contrasena}
-              onChange={(e) => setContrasena(e.target.value)}
-              className="w-full p-2 rounded bg-[#1c1c1c] border border-gray-700 focus:outline-none focus:border-red-600"
-              placeholder="Ingresa tu contraseña"
-            />
+            <div className="relative">
+              <input
+                type={mostrarContrasena ? "text" : "password"}
+                value={contrasena}
+                onChange={(e) => setContrasena(e.target.value)}
+                className="w-full p-2 rounded bg-[#1c1c1c] border border-gray-700 focus:outline-none focus:border-red-600 pr-10"
+                placeholder="Ingresa tu contraseña"
+              />
+              <button
+                type="button"
+                onClick={() => setMostrarContrasena(!mostrarContrasena)}
+                className="absolute right-3 top-2.5 text-gray-400 hover:text-gray-200 transition"
+                aria-label={
+                  mostrarContrasena ? "Ocultar contraseña" : "Mostrar contraseña"
+                }
+              >
+                {mostrarContrasena ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
           </div>
 
           <div className="flex justify-between text-xs text-gray-400">
@@ -107,7 +119,6 @@ const SignIn: React.FC = () => {
               ¿Olvidaste tu contraseña?
             </Link>
           </div>
-
 
           <div className="flex items-center justify-center space-x-2 text-xs text-gray-300">
             <input
@@ -118,7 +129,6 @@ const SignIn: React.FC = () => {
             />
             <label htmlFor="terms">Acepto Términos y Condiciones</label>
           </div>
-
 
           {errores.length > 0 && (
             <div className="bg-red-900/30 border border-red-600 rounded p-3 space-y-1">

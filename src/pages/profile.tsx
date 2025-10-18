@@ -71,14 +71,14 @@ export default function Profile() {
               <div className="flex flex-col items-center gap-4 mt-6">
                 <button
                   onClick={() => setIsEditing(true)}
-                  className="px-8 py-3 bg-red-600 hover:bg-red-700 rounded-xl font-semibold transition shadow-md"
+                  className="px-8 py-3 bg-gray-600 hover:bg-red-700 rounded-xl font-semibold transition shadow-md"
                 >
                   Editar perfil
                 </button>
 
                 <button
                   onClick={handleDelete}
-                  className="px-8 py-3 bg-gray-700 hover:bg-gray-600 rounded-xl font-semibold transition shadow-md"
+                  className="px-8 py-3 bg-red-700 hover:bg-gray-600 rounded-xl font-semibold transition shadow-md"
                 >
                   Eliminar perfil
                 </button>
