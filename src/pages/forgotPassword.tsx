@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import logo from "../../public/Logo.png";
 
 /**
  * ForgotPassword Component
@@ -67,11 +66,7 @@ const ForgotPassword: React.FC = () => {
 
         {/* Header section with logo and title */}
         <div className="flex flex-col items-center mb-8">
-          <img
-            src={logo}
-            alt="Leaderflix logo"
-            className="w-28 h-28 mb-4 mx-auto"
-          />
+        <img src="/Logo.png" alt="Logo" />
           <h1 className="text-2xl font-bold text-center mb-2">
             Recupera tu Contraseña
           </h1>
