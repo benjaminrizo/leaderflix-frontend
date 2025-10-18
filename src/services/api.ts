@@ -28,7 +28,7 @@ export async function loginUsuario(email: string, password: string) {
         throw new Error(data.message || "Error al iniciar sesión");
     }
 
-    return data; // Puede incluir el token JWT u otros datos del usuario
+    return data;
 }
 
 export async function forgotPassword(email: string) {
@@ -81,4 +81,51 @@ export async function updateUserProfile(id: string, formData: {
 
   if (!response.ok) throw new Error("Error al actualizar perfil");
   return await response.json();
+}
+
+export async function resetPassword({
+  token,
+  newPassword,
+}: {
+  token: string;
+  newPassword: string;
+}) {
+  try {
+    const response = await fetch(`${API_URL}/password/reset-password/${token}`, { 
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ newPassword }), 
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || "Error al actualizar la contraseña.");
+    }
+
+    return data;
+  } catch (error: any) {
+    throw new Error(error.message || "Error de conexión con el servidor.");
+  }
+}
+
+export async function deleteUserAccount(id: string) {
+  try {
+    const response = await fetch(`${API_URL}/users/${id}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error("Error al eliminar la cuenta");
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error eliminando usuario:", error);
+    throw error;
+  }
 }

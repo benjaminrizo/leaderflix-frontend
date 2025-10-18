@@ -1,8 +1,15 @@
-import { Search, Star, User } from "lucide-react";
-import { Link } from "react-router-dom";
-
+import { Search, Star, User, LogOut } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function Navbar() {
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    // Aquí puedes limpiar la sesión o el token del usuario
+    localStorage.removeItem("token");
+    navigate("/sign_in"); // Redirige al login
+  };
+
   return (
     <nav className="flex items-center justify-between px-8 py-4 bg-[#141414] text-white">
       {/* Logo */}
@@ -31,11 +38,20 @@ export default function Navbar() {
         <button className="flex items-center gap-2 text-gray-300 hover:text-white transition">
           <Star size={18} /> Favoritas
         </button>
+
         <Link to="/profile">
           <button className="p-2 bg-gray-700 rounded-full hover:bg-gray-600 transition">
             <User />
           </button>
         </Link>
+
+        {/* Botón de cerrar sesión */}
+        <button
+          onClick={handleLogout}
+          className="flex items-center gap-2 bg-red-600 hover:bg-red-700 px-4 py-2 rounded-xl font-semibold transition"
+        >
+          <LogOut size={18} /> <span>Cerrar sesión</span>
+        </button>
       </div>
     </nav>
   );
