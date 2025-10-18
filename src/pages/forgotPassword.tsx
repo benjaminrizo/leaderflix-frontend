@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { forgotPassword } from "../services/api";
 
 /**
  * ForgotPassword Component
@@ -37,20 +38,7 @@ const ForgotPassword: React.FC = () => {
       setError("");
       setMensaje("");
 
-      const response = await fetch("https://leaderflix-banck.onrender.com/password/forgot-password", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.msg || "Error al enviar el correo");
-      }
-
+      const data = await forgotPassword(email); // usa la función de api.ts
       setMensaje(data.msg || "Se ha enviado un correo para restablecer tu contraseña.");
     } catch (err: any) {
       setError(err.message || "Error al enviar el correo. Inténtalo nuevamente.");
@@ -85,7 +73,7 @@ const ForgotPassword: React.FC = () => {
 
         {/* Header section with logo and title */}
         <div className="flex flex-col items-center mb-8">
-        <img src="/Logo.png" alt="Logo" />
+          <img src="/Logo.png" alt="Logo" className="w-28 h-28 mb-4 mx-auto" />
           <h1 className="text-2xl font-bold text-center mb-2">
             Recupera tu Contraseña
           </h1>
