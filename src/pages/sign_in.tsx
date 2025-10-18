@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { Link, useNavigate} from "react-router-dom";
-import logo from "../assets/logo.png";
 import { loginUsuario } from "../services/api";
 
 const SignIn: React.FC = () => {
@@ -71,11 +70,7 @@ const SignIn: React.FC = () => {
     <div className="flex items-center justify-center min-h-screen bg-[#141414]">
       <div className="bg-black/80 p-10 rounded-2xl shadow-lg w-96 text-white">
         <div className="flex flex-col items-center mb-8">
-          <img
-            src={logo}
-            alt="Leaderflix logo"
-            className="w-28 h-28 mb-4 mx-auto"
-          />
+        <img src="/Logo.png" alt="Logo" />
           <h1 className="text-2xl font-bold text-center mb-2">Inicia sesión</h1>
           <p className="text-gray-400 text-sm text-center">
             Bienvenido de nuevo a Leaderflix
