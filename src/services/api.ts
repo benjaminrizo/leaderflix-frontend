@@ -1,36 +1,57 @@
 const API_URL = import.meta.env.VITE_API_URL;
 
-export async function registrarUsuario(username: string, email: string, password: string) {
-    const response = await fetch(`${API_URL}/users/register`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, email, password }),
-    });
+/**
+ * Register new user with username, email, age, birthdate, and password
+ * @param {string} username - User's chosen username
+ * @param {string} email - User's email address
+ * @param {number} age - User's age
+ * @param {string} birthdate - User's birth date (format: YYYY-MM-DD)
+ * @param {string} password - User's chosen password
+ * @returns {Promise<any>} API response JSON
+ */
+export async function registrarUsuario(
+  username: string,
+  email: string,
+  age: number,
+  birthdate: string,
+  password: string
+) {
+  const response = await fetch(`${API_URL}/users/register`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ username, email, age, birthdate, password }),
+  });
 
-    const data = await response.json();
-    if (!response.ok) {
-        throw new Error(data.message || "Error al registrar usuario");
-    }
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.message || "Error al registrar usuario");
+  }
 
-    return data;
+  return data;
 }
 
+/**
+ * Login user with email and password
+ */
 export async function loginUsuario(email: string, password: string) {
-    const response = await fetch(`${API_URL}/auth/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-    });
+  const response = await fetch(`${API_URL}/auth/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password }),
+  });
 
-    const data = await response.json();
+  const data = await response.json();
 
-    if (!response.ok) {
-        throw new Error(data.message || "Error al iniciar sesión");
-    }
+  if (!response.ok) {
+    throw new Error(data.message || "Error al iniciar sesión");
+  }
 
-    return data;
+  return data;
 }
 
+/**
+ * Send password reset email
+ */
 export async function forgotPassword(email: string) {
   const response = await fetch(`${API_URL}/password/forgot-password`, {
     method: "POST",
@@ -49,13 +70,16 @@ export async function forgotPassword(email: string) {
   return data;
 }
 
+/**
+ * Get user profile by ID
+ */
 export async function getUserProfile(id: string) {
   const token = localStorage.getItem("token");
 
   const response = await fetch(`${API_URL}/users/${id}`, {
     method: "GET",
     headers: {
-      "Authorization": `Bearer ${token}`,
+      Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
     },
   });
@@ -64,16 +88,20 @@ export async function getUserProfile(id: string) {
   return await response.json();
 }
 
+/**
+ * Update user profile information
+ */
 export async function updateUserProfile(id: string, formData: {
   email: string;
   username: string;
+  age?: string;
 }) {
   const token = localStorage.getItem("token");
 
   const response = await fetch(`${API_URL}/users/${id}`, {
     method: "PUT",
     headers: {
-      "Authorization": `Bearer ${token}`,
+      Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
     },
     body: JSON.stringify(formData),
@@ -83,6 +111,9 @@ export async function updateUserProfile(id: string, formData: {
   return await response.json();
 }
 
+/**
+ * Reset password using token from email
+ */
 export async function resetPassword({
   token,
   newPassword,
@@ -91,10 +122,10 @@ export async function resetPassword({
   newPassword: string;
 }) {
   try {
-    const response = await fetch(`${API_URL}/password/reset-password/${token}`, { 
+    const response = await fetch(`${API_URL}/password/reset-password/${token}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ newPassword }), 
+      body: JSON.stringify({ newPassword }),
     });
 
     const data = await response.json();
@@ -109,6 +140,9 @@ export async function resetPassword({
   }
 }
 
+/**
+ * Delete user account permanently
+ */
 export async function deleteUserAccount(id: string) {
   try {
     const response = await fetch(`${API_URL}/users/${id}`, {

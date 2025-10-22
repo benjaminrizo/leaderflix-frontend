@@ -1,55 +1,94 @@
-// src/components/Footer.tsx
+// Importing the Link component for client-side navigation between routes
 import { Link } from "react-router-dom";
+// Importing the Film icon from lucide-react for brand illustration
+import { Film } from "lucide-react";
 
+// Functional component representing the application's footer section
 export default function Footer() {
   return (
-    <footer className="bg-[#141414] text-gray-300 py-10 mt-10 border-t border-gray-700">
-      <div className="max-w-6xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-8 text-sm">
+    // Footer container with background color, padding, and top border
+    <footer className="bg-black/50 text-gray-400 py-8 mt-auto border-t border-gray-800">
+      <div className="max-w-6xl mx-auto px-6">
         
-        {/* Columna 1 */}
-        <div>
-          <h3 className="text-white font-semibold mb-3">Leaderflix</h3>
-          <ul className="space-y-2">
-            <li><Link to="/" className="hover:text-white transition">Inicio</Link></li>
-            <li><Link to="/home" className="hover:text-white transition">Películas</Link></li>
-            <li><Link to="/series" className="hover:text-white transition">Series</Link></li>
-            <li><Link to="/directors" className="hover:text-white transition">Directores</Link></li>
-          </ul>
+        {/* Main footer layout divided into three columns on larger screens */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+          
+          {/* Brand information section including logo and short description */}
+          <div>
+            <div className="flex items-center gap-2 mb-3">
+              {/* Film icon representing the movie theme */}
+              <Film className="text-red-600" size={24} />
+              {/* Brand name */}
+              <h3 className="text-white font-bold text-lg">Leaderflix</h3>
+            </div>
+            {/* Short descriptive text about the platform */}
+            <p className="text-sm text-gray-500 leading-relaxed">
+              Tu plataforma de películas favoritas. Descubre y disfruta del mejor contenido cinematográfico.
+            </p>
+          </div>
+
+          {/* Navigation links to main pages */}
+          <div>
+            <h4 className="text-white font-semibold mb-3 text-sm">Navegación</h4>
+            <ul className="space-y-2 text-sm">
+              <li>
+                {/* Link to homepage */}
+                <Link to="/" className="hover:text-red-500 transition">
+                  Inicio
+                </Link>
+              </li>
+              <li>
+                {/* Link to movies section */}
+                <Link to="/home" className="hover:text-red-500 transition">
+                  Películas
+                </Link>
+              </li>
+              <li>
+                {/* Link to about page */}
+                <Link to="/about" className="hover:text-red-500 transition">
+                  Acerca de
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Account-related links */}
+          <div>
+            <h4 className="text-white font-semibold mb-3 text-sm">Cuenta</h4>
+            <ul className="space-y-2 text-sm">
+              <li>
+                {/* Link to login page */}
+                <Link to="/sign_in" className="hover:text-red-500 transition">
+                  Iniciar sesión
+                </Link>
+              </li>
+              <li>
+                {/* Link to registration page */}
+                <Link to="/sign_up" className="hover:text-red-500 transition">
+                  Registrarse
+                </Link>
+              </li>
+              <li>
+                {/* Link to user profile */}
+                <Link to="/profile" className="hover:text-red-500 transition">
+                  Mi perfil
+                </Link>
+              </li>
+              <li>
+                {/* Link to password recovery page */}
+                <Link to="/forgot-password" className="hover:text-red-500 transition">
+                  Recuperar contraseña
+                </Link>
+              </li>
+            </ul>
+          </div>
         </div>
 
-        {/* Columna 2 */}
-        <div>
-          <h3 className="text-white font-semibold mb-3">Cuenta</h3>
-          <ul className="space-y-2">
-            <li><Link to="/profile" className="hover:text-white transition">Perfil</Link></li>
-            <li><Link to="/favorites" className="hover:text-white transition">Favoritos</Link></li>
-            <li><Link to="/settings" className="hover:text-white transition">Configuración</Link></li>
-          </ul>
+        {/* Footer bottom section showing copyright */}
+        <div className="text-center text-gray-600 text-xs pt-6 border-t border-gray-800">
+          {/* Displays the current year dynamically */}
+          <p>© {new Date().getFullYear()} Leaderflix. Proyecto académico sin fines comerciales.</p>
         </div>
-
-        {/* Columna 3 */}
-        <div>
-          <h3 className="text-white font-semibold mb-3">Acerca de</h3>
-          <ul className="space-y-2">
-            <li><Link to="/about" className="hover:text-white transition">Nosotros</Link></li>
-            <li><Link to="/terms" className="hover:text-white transition">Términos de uso</Link></li>
-            <li><Link to="/privacy" className="hover:text-white transition">Privacidad</Link></li>
-          </ul>
-        </div>
-
-        {/* Columna 4 */}
-        <div>
-          <h3 className="text-white font-semibold mb-3">Soporte</h3>
-          <ul className="space-y-2">
-            <li><Link to="/help" className="hover:text-white transition">Centro de ayuda</Link></li>
-            <li><Link to="/contact" className="hover:text-white transition">Contáctanos</Link></li>
-            <li><Link to="/feedback" className="hover:text-white transition">Sugerencias</Link></li>
-          </ul>
-        </div>
-      </div>
-
-      <div className="text-center text-gray-500 text-xs mt-10 border-t border-gray-700 pt-5">
-        © {new Date().getFullYear()} Leaderflix. Todos los derechos reservados.
       </div>
     </footer>
   );

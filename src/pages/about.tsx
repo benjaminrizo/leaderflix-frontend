@@ -3,23 +3,27 @@ import { useNavigate } from "react-router-dom";
 
 /**
  * About Component
- * Displays information about Leaderflix platform
- * @returns {JSX.Element} About page
+ * Displays comprehensive information about the Leaderflix platform
+ * Includes university project details, team members, mission, and contact information
+ * @returns {JSX.Element} About page with full platform information
  */
 const About: React.FC = () => {
-  // Hook for programmatic navigation
+  // Hook for programmatic navigation (used for back button)
   const navigate = useNavigate();
 
   return (
     <div className="min-h-screen bg-[#141414] text-white">
-      {/* Header with back button */}
+      
+      {/* Header section with navigation */}
       <header className="bg-black/80 shadow-lg">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center">
+          {/* Back button - navigates to previous page in history */}
           <button
             onClick={() => navigate(-1)}
             className="text-gray-400 hover:text-white transition-colors mr-4"
             aria-label="Go back"
           >
+            {/* Left chevron SVG icon */}
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="h-6 w-6"
@@ -35,32 +39,38 @@ const About: React.FC = () => {
               />
             </svg>
           </button>
+          {/* Page title */}
           <h1 className="text-2xl font-bold">Acerca de Leaderflix</h1>
         </div>
       </header>
 
-      {/* Main content */}
+      {/* Main content container with centered layout */}
       <main className="max-w-4xl mx-auto px-4 py-12">
-        {/* Logo and hero section */}
+        
+        {/* Hero section with logo and tagline */}
         <div className="text-center mb-12">
+          {/* Platform logo */}
           <img
             src="/Logo.png"
             alt="Leaderflix logo"
             className="w-32 h-32 mx-auto mb-6"
           />
+          {/* Platform name with gradient text effect */}
           <h2 className="text-4xl font-bold mb-4 bg-gradient-to-r from-red-500 to-red-700 bg-clip-text text-transparent">
             Leaderflix
           </h2>
+          {/* Platform tagline */}
           <p className="text-xl text-gray-300">
             Tu plataforma de streaming educativo
           </p>
         </div>
 
-        {/* University Project Section */}
+        {/* University Project Information Section */}
         <section className="bg-black/50 rounded-2xl p-8 mb-8 border border-gray-800">
           <h3 className="text-2xl font-bold mb-4 text-red-500">
             Proyecto Académico
           </h3>
+          {/* First paragraph: University and course context */}
           <p className="text-gray-300 leading-relaxed mb-4">
             Leaderflix es un proyecto desarrollado por estudiantes de la{" "}
             <span className="text-red-500 font-semibold">
@@ -72,6 +82,7 @@ const About: React.FC = () => {
             </span>
             .
           </p>
+          {/* Second paragraph: Project significance and scope */}
           <p className="text-gray-300 leading-relaxed">
             Este proyecto representa la integración de conocimientos adquiridos
             en diferentes áreas de la ingeniería de sistemas, aplicando
@@ -80,7 +91,7 @@ const About: React.FC = () => {
           </p>
         </section>
 
-        {/* Team Section */}
+        {/* Development Team Section */}
         <section className="bg-black/50 rounded-2xl p-8 mb-8 border border-gray-800">
           <h3 className="text-2xl font-bold mb-6 text-red-500 text-center">
             Nuestro Equipo
@@ -88,13 +99,17 @@ const About: React.FC = () => {
           <p className="text-gray-300 text-center mb-8">
             Desarrollado con dedicación por:
           </p>
+          {/* Grid layout for team members - 2 columns on medium+ screens */}
           <div className="grid md:grid-cols-2 gap-6">
-            {/* Team Member 1 */}
+            
+            {/* Team Member Card 1: Diego Betancourt */}
             <div className="bg-gray-900/50 rounded-xl p-6 border border-gray-700 hover:border-red-500 transition-colors">
               <div className="flex items-center space-x-4">
+                {/* Avatar with initials */}
                 <div className="bg-red-600 rounded-full w-12 h-12 flex items-center justify-center text-xl font-bold">
                   DB
                 </div>
+                {/* Member information */}
                 <div>
                   <h4 className="font-bold text-lg">Diego Betancourt</h4>
                   <p className="text-gray-400 text-sm">Desarrollador</p>
@@ -102,7 +117,7 @@ const About: React.FC = () => {
               </div>
             </div>
 
-            {/* Team Member 2 */}
+            {/* Team Member Card 2: Yancarlo Ospina */}
             <div className="bg-gray-900/50 rounded-xl p-6 border border-gray-700 hover:border-red-500 transition-colors">
               <div className="flex items-center space-x-4">
                 <div className="bg-red-600 rounded-full w-12 h-12 flex items-center justify-center text-xl font-bold">
@@ -115,7 +130,7 @@ const About: React.FC = () => {
               </div>
             </div>
 
-            {/* Team Member 3 */}
+            {/* Team Member Card 3: Andrés Mesa */}
             <div className="bg-gray-900/50 rounded-xl p-6 border border-gray-700 hover:border-red-500 transition-colors">
               <div className="flex items-center space-x-4">
                 <div className="bg-red-600 rounded-full w-12 h-12 flex items-center justify-center text-xl font-bold">
@@ -128,7 +143,7 @@ const About: React.FC = () => {
               </div>
             </div>
 
-            {/* Team Member 4 */}
+            {/* Team Member Card 4: Juan Manuel Mena */}
             <div className="bg-gray-900/50 rounded-xl p-6 border border-gray-700 hover:border-red-500 transition-colors">
               <div className="flex items-center space-x-4">
                 <div className="bg-red-600 rounded-full w-12 h-12 flex items-center justify-center text-xl font-bold">
@@ -141,7 +156,7 @@ const About: React.FC = () => {
               </div>
             </div>
 
-            {/* Team Member 5 */}
+            {/* Team Member Card 5: Benjamin Rizo - Centered on medium+ screens */}
             <div className="bg-gray-900/50 rounded-xl p-6 border border-gray-700 hover:border-red-500 transition-colors md:col-span-2 md:w-1/2 md:mx-auto">
               <div className="flex items-center space-x-4">
                 <div className="bg-red-600 rounded-full w-12 h-12 flex items-center justify-center text-xl font-bold">
@@ -156,11 +171,12 @@ const About: React.FC = () => {
           </div>
         </section>
 
-        {/* Mission section */}
+        {/* Platform Mission Statement Section */}
         <section className="bg-black/50 rounded-2xl p-8 mb-8 border border-gray-800">
           <h3 className="text-2xl font-bold mb-4 text-red-500">
             Nuestra Misión
           </h3>
+          {/* Mission description emphasizing accessibility and modern learning */}
           <p className="text-gray-300 leading-relaxed">
             Leaderflix nace con el objetivo de democratizar el acceso a contenido
             educativo de calidad. Creemos que el aprendizaje debe ser accesible,
@@ -170,8 +186,7 @@ const About: React.FC = () => {
           </p>
         </section>
 
-
-        {/* Contact section */}
+        {/* Contact Information Section */}
         <section className="bg-black/50 rounded-2xl p-8 border border-gray-800">
           <h3 className="text-2xl font-bold mb-4 text-red-500">
             Contáctanos
@@ -179,7 +194,9 @@ const About: React.FC = () => {
           <p className="text-gray-300 mb-4">
             ¿Tienes preguntas o sugerencias? Nos encantaría escucharte.
           </p>
+          {/* Contact details list */}
           <div className="space-y-2 text-gray-400">
+            {/* Email contact with envelope icon */}
             <p className="flex items-center">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -197,6 +214,7 @@ const About: React.FC = () => {
               </svg>
               contacto@leaderflix.com
             </p>
+            {/* Physical location with building icon */}
             <p className="flex items-center">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -218,10 +236,12 @@ const About: React.FC = () => {
         </section>
       </main>
 
-      {/* Footer */}
+      {/* Page Footer with copyright information */}
       <footer className="bg-black/80 py-6 mt-12">
         <div className="max-w-6xl mx-auto px-4 text-center text-gray-400 text-sm">
+          {/* Copyright notice */}
           <p>&copy; 2025 Leaderflix - Universidad del Valle, Sede Yumbo</p>
+          {/* Course reference */}
           <p className="mt-1">Proyecto Integrador 1</p>
         </div>
       </footer>

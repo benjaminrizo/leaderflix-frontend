@@ -1,22 +1,26 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, User as UserIcon, Mail, Calendar, Cake } from "lucide-react";
 import Navbar from "../components/Navbar";
-import { getUserProfile, updateUserProfile, deleteUserAccount} from "../services/api";
+import { getUserProfile, updateUserProfile, deleteUserAccount } from "../services/api";
 
 export default function Profile() {
-  const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
+  // State to store user data fetched from the server
   const [userData, setUserData] = useState({
     id: "",
     email: "",
     username: "",
+    age: "",
+    birthdate: "", // Birth date
   });
 
+  // State to manage form data (editable fields)
   const [formData, setFormData] = useState(userData);
 
+  // Effect to load profile data when component mounts
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -36,11 +40,13 @@ export default function Profile() {
     fetchData();
   }, []);
 
+  // Handler to update form input fields
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  // Handler to save profile changes
   const handleSave = async () => {
     try {
       const userId = localStorage.getItem("userId");
@@ -48,134 +54,166 @@ export default function Profile() {
 
       const updated = await updateUserProfile(userId, formData);
       setUserData(updated);
-      setIsEditing(false);
+      alert("Perfil actualizado correctamente ✅");
     } catch (error) {
       console.error(error);
-      alert("No se pudo guardar los cambios");
+      alert("❌ No se pudo guardar los cambios");
     }
   };
 
+  // Handler to delete user account
   const handleDelete = async () => {
-  if (!confirm("¿Seguro que deseas eliminar tu perfil? Esta acción es irreversible.")) {
-    return;
-  }
+    if (!confirm("¿Seguro que deseas eliminar tu perfil? Esta acción es irreversible.")) return;
 
-  try {
-    const userId = localStorage.getItem("userId");
-    if (!userId) throw new Error("No se encontró el ID del usuario");
+    try {
+      const userId = localStorage.getItem("userId");
+      if (!userId) throw new Error("No se encontró el ID del usuario");
 
-    // Llamar al backend para eliminar usuario
-    await deleteUserAccount(userId);
+      await deleteUserAccount(userId);
+      localStorage.removeItem("token");
+      localStorage.removeItem("userId");
 
-    // Eliminar datos locales
-    localStorage.removeItem("token");
-    localStorage.removeItem("userId");
+      alert("Perfil eliminado correctamente.");
+      navigate("/sign_in");
+    } catch (error) {
+      console.error(error);
+      alert("No se pudo eliminar la cuenta.");
+    }
+  };
 
-    alert("Perfil eliminado correctamente.");
-    navigate("/sign_in");
-  } catch (error) {
-    console.error(error);
-    alert("No se pudo eliminar la cuenta.");
-  }
-};
-
-
+  // Loading screen while fetching data
   if (loading) {
     return (
-      <div className="bg-[#0f0f0f] min-h-screen text-white flex items-center justify-center">
+      <div className="bg-[#141414] min-h-screen text-white flex items-center justify-center">
         <p className="text-gray-400">Cargando perfil...</p>
       </div>
     );
   }
 
   return (
-    <div className="bg-[#0f0f0f] min-h-screen text-white flex flex-col">
+    <div className="bg-[#141414] min-h-screen text-white flex flex-col">
       <Navbar />
 
       <div className="flex justify-center items-center flex-1 px-4 py-10">
-        <div className="relative w-full max-w-md bg-[#1a1a1a] rounded-3xl shadow-2xl p-8 border border-gray-800">
-          {/* 🔙 Botón de volver */}
+        <div className="relative w-full max-w-md bg-black/80 rounded-2xl shadow-2xl p-8 border border-gray-800">
+          {/* Back button to return to home page */}
           <button
             onClick={() => navigate("/home")}
-            className="absolute top-6 left-6 p-2 bg-[#242424] rounded-full hover:bg-[#333] transition"
-            aria-label="Volver"
+            className="flex items-center gap-2 text-gray-400 hover:text-red-500 transition mb-6 font-medium"
           >
             <ArrowLeft size={20} />
+            <span>Volver</span>
           </button>
 
-          <h1 className="text-3xl font-bold mb-8 text-center text-red-500">
-            Perfil de usuario
-          </h1>
+          {/* Page title */}
+          <h1 className="text-3xl font-bold mb-8 text-center text-white">Mi perfil</h1>
 
-          {!isEditing ? (
-            <div className="space-y-5">
-               
-              <div className="bg-[#242424] rounded-2xl p-5">
-                <p className="text-gray-400 text-sm">Usuario</p>
-                <p className="text-lg font-medium mt-1">{userData.username}</p>
-              </div>
+          {/* User avatar */}
+          <div className="flex justify-center mb-8">
+            <div className="bg-red-600 rounded-full w-24 h-24 flex items-center justify-center">
+              <UserIcon size={48} className="text-white" />
+            </div>
+          </div>
 
-              <div className="bg-[#242424] rounded-2xl p-5">
-                <p className="text-gray-400 text-sm">Correo electrónico</p>
-                <p className="text-lg font-medium mt-1">{userData.email}</p>
-              </div>
+          {/* Section with editable profile fields */}
+          <div className="mb-8">
+            <h3 className="text-lg font-semibold text-white mb-4">
+              Información de la cuenta
+            </h3>
 
-              <div className="flex flex-col items-center gap-4 mt-6">
-                <button
-                  onClick={() => setIsEditing(true)}
-                  className="px-8 py-3 bg-gray-600 hover:bg-red-700 rounded-xl font-semibold transition shadow-md"
-                >
-                  Editar perfil
-                </button>
-
-                <button
-                  onClick={handleDelete}
-                  className="px-8 py-3 bg-red-700 hover:bg-gray-600 rounded-xl font-semibold transition shadow-md"
-                >
-                  Eliminar perfil
-                </button>
+            {/* Input field: Username */}
+            <div className="bg-[#1c1c1c] rounded-xl p-4 mb-3 border border-gray-700">
+              <div className="flex items-center gap-3">
+                <UserIcon size={20} className="text-gray-400" />
+                <div className="flex-1">
+                  <span className="text-xs text-gray-500 block">Nombre de usuario</span>
+                  <input
+                    type="text"
+                    name="username"
+                    value={formData.username}
+                    onChange={handleChange}
+                    className="w-full bg-transparent text-white font-medium focus:outline-none border-b border-gray-600 focus:border-red-500 py-1"
+                  />
+                </div>
               </div>
             </div>
-          ) : (
-            <div className="space-y-5">
-              
-              <div>
-                <label className="block text-gray-400 mb-1">Usuario</label>
-                <input
-                  type="text"
-                  name="username"
-                  value={formData.username}
-                  onChange={handleChange}
-                  className="w-full p-3 rounded-xl bg-[#242424] text-white border border-gray-700 focus:outline-none focus:border-red-500"
-                />
-              </div>
-              <div>
-                <label className="block text-gray-400 mb-1">Correo electrónico</label>
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  className="w-full p-3 rounded-xl bg-[#242424] text-white border border-gray-700 focus:outline-none focus:border-red-500"
-                />
-              </div>
 
-              <div className="flex justify-center gap-5 pt-6">
-                <button
-                  onClick={handleSave}
-                  className="px-8 py-3 bg-red-600 hover:bg-red-700 rounded-xl font-semibold transition shadow-md"
-                >
-                  Guardar cambios
-                </button>
-                <button
-                  onClick={() => setIsEditing(false)}
-                  className="px-8 py-3 bg-gray-700 hover:bg-gray-600 rounded-xl font-semibold transition"
-                >
-                  Cancelar
-                </button>
+            {/* Input field: Email */}
+            <div className="bg-[#1c1c1c] rounded-xl p-4 mb-3 border border-gray-700">
+              <div className="flex items-center gap-3">
+                <Mail size={20} className="text-gray-400" />
+                <div className="flex-1">
+                  <span className="text-xs text-gray-500 block">Correo electrónico</span>
+                  <input
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    className="w-full bg-transparent text-white font-medium focus:outline-none border-b border-gray-600 focus:border-red-500 py-1"
+                  />
+                </div>
               </div>
             </div>
-          )}
+
+            {/* Input field: Age */}
+            <div className="bg-[#1c1c1c] rounded-xl p-4 mb-3 border border-gray-700">
+              <div className="flex items-center gap-3">
+                <Cake size={20} className="text-gray-400" />
+                <div className="flex-1">
+                  <span className="text-xs text-gray-500 block">Edad</span>
+                  <input
+                    type="number"
+                    name="age"
+                    value={formData.age}
+                    onChange={handleChange}
+                    min="1"
+                    max="120"
+                    className="w-full bg-transparent text-white font-medium focus:outline-none border-b border-gray-600 focus:border-red-500 py-1"
+                  />
+                </div>
+              </div>
+            </div>
+
+           {/* Input field: Birth date */}
+          <div className="bg-[#1c1c1c] rounded-xl p-4 border border-gray-700">
+            <div className="flex items-center gap-3">
+              <Calendar size={20} className="text-gray-400" />
+              <div className="flex-1">
+                <span className="text-xs text-gray-500 block">Fecha de nacimiento</span>
+                <input
+                  type="date"
+                  name="birthdate"
+                  value={formData.birthdate}
+                  onChange={handleChange}
+                  
+                  className="w-full bg-transparent text-white font-medium focus:outline-none border-b border-gray-600 focus:border-red-500 py-1
+                  [&::-webkit-calendar-picker-indicator]:invert [&::-webkit-calendar-picker-indicator]:opacity-100"
+                  // Makes the date picker icon white and visible on dark backgrounds
+                />
+              </div>
+            </div>
+          </div>
+          
+          </div>
+
+          {/* Action buttons section */}
+          <div className="flex flex-col gap-3">
+            {/* Button to save profile changes */}
+            <button
+              onClick={handleSave}
+              className="w-full py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl font-semibold transition shadow-md"
+            >
+              Guardar cambios
+            </button>
+            
+            {/* Button to delete user account */}
+            <button
+              onClick={handleDelete}
+              className="w-full py-3 bg-gray-700 hover:bg-gray-600 text-white rounded-xl font-semibold transition shadow-md"
+            >
+              Eliminar cuenta
+            </button>
+          </div>
         </div>
       </div>
     </div>

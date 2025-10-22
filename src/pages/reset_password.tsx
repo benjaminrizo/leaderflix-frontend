@@ -3,10 +3,18 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { resetPassword } from "../services/api";
 import { Eye, EyeOff } from "lucide-react";
 
+/**
+ * ResetPassword Component
+ * Allows users to reset their password using a token received via email
+ * Includes password validation, confirmation matching, and accessibility features
+ * @returns {JSX.Element} Password reset form
+ */
 const ResetPassword: React.FC = () => {
+  // Hooks for navigation and accessing URL parameters
   const navigate = useNavigate();
   const location = useLocation();
 
+  // Form state management
   const [nuevaContrasena, setNuevaContrasena] = useState("");
   const [confirmarContrasena, setConfirmarContrasena] = useState("");
   const [mostrarContrasena, setMostrarContrasena] = useState(false);
@@ -15,9 +23,15 @@ const ResetPassword: React.FC = () => {
   const [mensaje, setMensaje] = useState("");
   const [token, setToken] = useState<string | null>(null);
   const [cargando, setCargando] = useState(false);
+  
+  // Refs for accessibility - managing focus on errors and success messages
   const erroresRef = useRef<HTMLDivElement>(null);
   const mensajeRef = useRef<HTMLDivElement>(null);
 
+  /**
+   * Extract reset token from URL query parameters on component mount
+   * Sets error if token is missing or invalid
+   */
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const tokenFromURL = params.get("token");
@@ -25,16 +39,27 @@ const ResetPassword: React.FC = () => {
     else setErrores(["Token inválido o ausente."]);
   }, [location.search]);
 
+  /**
+   * Validates password strength requirements
+   * @param {string} password - Password to validate
+   * @returns {boolean} True if password meets requirements (8+ chars, 1 uppercase, 1 special char)
+   */
   const validarContrasena = (password: string): boolean => {
     const regex =
       /^(?=.*[A-Z])(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/;
     return regex.test(password);
   };
 
+  /**
+   * Handles form submission
+   * Validates all fields, sends reset request to API, and redirects on success
+   * @param {React.FormEvent} e - Form submission event
+   */
   const manejarSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const nuevosErrores: string[] = [];
 
+    // Validate new password field
     if (!nuevaContrasena) {
       nuevosErrores.push("La nueva contraseña es obligatoria.");
     } else if (!validarContrasena(nuevaContrasena)) {
@@ -43,16 +68,19 @@ const ResetPassword: React.FC = () => {
       );
     }
 
+    // Validate password confirmation field
     if (!confirmarContrasena) {
       nuevosErrores.push("Debes confirmar tu nueva contraseña.");
     } else if (nuevaContrasena !== confirmarContrasena) {
       nuevosErrores.push("Las contraseñas no coinciden.");
     }
 
+    // Validate token presence
     if (!token) {
       nuevosErrores.push("Token de restablecimiento no encontrado.");
     }
 
+    // If validation errors exist, display them and focus error container
     if (nuevosErrores.length > 0) {
       setErrores(nuevosErrores);
       setMensaje("");
@@ -60,15 +88,18 @@ const ResetPassword: React.FC = () => {
       return;
     }
 
+    // Attempt password reset via API
     try {
       setCargando(true);
       await resetPassword({ token: token!, newPassword: nuevaContrasena });
 
+      // Show success message and redirect to login after 2 seconds
       setMensaje("¡Contraseña actualizada exitosamente!");
       setErrores([]);
       mensajeRef.current?.focus();
       setTimeout(() => navigate("/sign_in"), 2000);
     } catch (error: any) {
+      // Display API error and focus error container
       setErrores([error.message]);
       erroresRef.current?.focus();
     } finally {
@@ -77,13 +108,18 @@ const ResetPassword: React.FC = () => {
   };
 
   return (
+    // Full-screen centered container with dark background
     <div className="flex items-center justify-center min-h-screen bg-[#141414]">
+      {/* Form card with semi-transparent black background */}
       <div className="bg-black/80 p-10 rounded-2xl shadow-lg w-96 text-white relative">
+        
+        {/* Back button - navigates to sign in page */}
         <button
           onClick={() => navigate("/sign_in")}
           className="absolute top-4 left-4 text-gray-400 hover:text-white transition-colors focus:outline-2 focus:outline-offset-2 focus:outline-red-600 rounded p-1"
           aria-label="Volver a iniciar sesión"
         >
+          {/* Left chevron SVG icon */}
           <svg
             xmlns="http://www.w3.org/2000/svg"
             className="h-6 w-6"
@@ -101,6 +137,7 @@ const ResetPassword: React.FC = () => {
           </svg>
         </button>
 
+        {/* Header section with logo and title */}
         <div className="flex flex-col items-center mb-8">
           <img src="/Logo.png" alt="Leaderflix logo" className="w-28 h-28 mb-4 mx-auto" />
           <h1 className="text-2xl font-bold text-center mb-2">
@@ -111,13 +148,15 @@ const ResetPassword: React.FC = () => {
           </p>
         </div>
 
+        {/* Password reset form */}
         <form
           onSubmit={manejarSubmit}
           className="flex flex-col space-y-5"
           aria-label="Formulario de restablecimiento de contraseña"
           noValidate
         >
-          {/* Mensajes de error */}
+          
+          {/* Error messages container - displayed when validation fails */}
           {errores.length > 0 && (
             <div
               ref={erroresRef}
@@ -130,6 +169,7 @@ const ResetPassword: React.FC = () => {
               <p className="font-semibold text-red-400 text-sm mb-2">
                 Se encontraron {errores.length} error{errores.length > 1 ? "es" : ""}:
               </p>
+              {/* Error list with bullet points */}
               <ul className="space-y-1">
                 {errores.map((error, index) => (
                   <li key={index} className="text-red-400 text-xs flex items-start">
@@ -141,12 +181,13 @@ const ResetPassword: React.FC = () => {
             </div>
           )}
 
-          {/* Campo Nueva Contraseña */}
+          {/* New Password Field */}
           <div>
             <label htmlFor="new-password" className="block text-sm mb-1 text-gray-300">
               Nueva Contraseña <span className="text-red-500" aria-label="requerido">*</span>
             </label>
             <div className="relative">
+              {/* Password input with dynamic type (text/password) for show/hide functionality */}
               <input
                 id="new-password"
                 type={mostrarContrasena ? "text" : "password"}
@@ -167,6 +208,7 @@ const ResetPassword: React.FC = () => {
                 }
                 disabled={cargando}
               />
+              {/* Toggle visibility button - Eye/EyeOff icon */}
               <button
                 type="button"
                 onClick={() => setMostrarContrasena(!mostrarContrasena)}
@@ -180,6 +222,7 @@ const ResetPassword: React.FC = () => {
                 {mostrarContrasena ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
             </div>
+            {/* Password requirements helper text */}
             <p
               id="password-requirements"
               className="text-gray-400 text-xs mt-1"
@@ -188,12 +231,13 @@ const ResetPassword: React.FC = () => {
             </p>
           </div>
 
-          {/* Campo Confirmar Nueva Contraseña */}
+          {/* Confirm Password Field */}
           <div>
             <label htmlFor="confirm-password" className="block text-sm mb-1 text-gray-300">
               Confirmar Nueva Contraseña <span className="text-red-500" aria-label="requerido">*</span>
             </label>
             <div className="relative">
+              {/* Password confirmation input with show/hide functionality */}
               <input
                 id="confirm-password"
                 type={mostrarConfirmarContrasena ? "text" : "password"}
@@ -210,6 +254,7 @@ const ResetPassword: React.FC = () => {
                 aria-describedby={errores.some((e) => e.includes("coinciden")) ? "confirm-error" : undefined}
                 disabled={cargando}
               />
+              {/* Toggle visibility button */}
               <button
                 type="button"
                 onClick={() => setMostrarConfirmarContrasena(!mostrarConfirmarContrasena)}
@@ -223,6 +268,7 @@ const ResetPassword: React.FC = () => {
                 {mostrarConfirmarContrasena ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
             </div>
+            {/* Specific error message for password mismatch */}
             {errores.some((e) => e.includes("coinciden")) && (
               <p id="confirm-error" className="text-red-400 text-xs mt-1">
                 {errores.find((e) => e.includes("coinciden"))}
@@ -230,7 +276,7 @@ const ResetPassword: React.FC = () => {
             )}
           </div>
 
-          {/* Mensaje de éxito */}
+          {/* Success message - displayed after successful password reset */}
           {mensaje && (
             <div
               ref={mensajeRef}
@@ -244,7 +290,7 @@ const ResetPassword: React.FC = () => {
             </div>
           )}
 
-          {/* Botón de envío */}
+          {/* Submit button - disabled during loading state */}
           <button
             type="submit"
             disabled={cargando}
@@ -258,7 +304,7 @@ const ResetPassword: React.FC = () => {
             {cargando ? "Restableciendo..." : "Restablecer Contraseña"}
           </button>
 
-          {/* Enlace a login */}
+          {/* Link back to sign in page */}
           <p className="text-center text-xs text-gray-400 mt-3">
             ¿Recordaste tu contraseña?{" "}
             <Link
