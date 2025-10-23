@@ -1,11 +1,19 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, User as UserIcon, Mail, Calendar, Cake } from "lucide-react";
+import { ArrowLeft, User as UserIcon, Mail, Calendar } from "lucide-react";
 import Navbar from "../components/Navbar";
 import { getUserProfile, updateUserProfile, deleteUserAccount } from "../services/api";
 
+/**
+ * Profile Component
+ * Displays and manages user profile information
+ * @returns {JSX.Element} User profile page
+ */
 export default function Profile() {
+  // State for loading indicator
   const [loading, setLoading] = useState(true);
+  
+  // Hook for programmatic navigation
   const navigate = useNavigate();
 
   // State to store user data fetched from the server
@@ -13,14 +21,15 @@ export default function Profile() {
     id: "",
     email: "",
     username: "",
-    age: "",
     birthdate: "", // Birth date
   });
 
   // State to manage form data (editable fields)
   const [formData, setFormData] = useState(userData);
 
-  // Effect to load profile data when component mounts
+  /**
+   * Effect to load profile data when component mounts
+   */
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -40,13 +49,17 @@ export default function Profile() {
     fetchData();
   }, []);
 
-  // Handler to update form input fields
+  /**
+   * Handler to update form input fields
+   */
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Handler to save profile changes
+  /**
+   * Handler to save profile changes
+   */
   const handleSave = async () => {
     try {
       const userId = localStorage.getItem("userId");
@@ -61,7 +74,9 @@ export default function Profile() {
     }
   };
 
-  // Handler to delete user account
+  /**
+   * Handler to delete user account
+   */
   const handleDelete = async () => {
     if (!confirm("¿Seguro que deseas eliminar tu perfil? Esta acción es irreversible.")) return;
 
@@ -100,6 +115,7 @@ export default function Profile() {
           <button
             onClick={() => navigate("/home")}
             className="flex items-center gap-2 text-gray-400 hover:text-red-500 transition mb-6 font-medium"
+            aria-label="Go back"
           >
             <ArrowLeft size={20} />
             <span>Volver</span>
@@ -155,45 +171,23 @@ export default function Profile() {
               </div>
             </div>
 
-            {/* Input field: Age */}
-            <div className="bg-[#1c1c1c] rounded-xl p-4 mb-3 border border-gray-700">
+            {/* Input field: Birth date */}
+            <div className="bg-[#1c1c1c] rounded-xl p-4 border border-gray-700">
               <div className="flex items-center gap-3">
-                <Cake size={20} className="text-gray-400" />
+                <Calendar size={20} className="text-gray-400" />
                 <div className="flex-1">
-                  <span className="text-xs text-gray-500 block">Edad</span>
+                  <span className="text-xs text-gray-500 block">Fecha de nacimiento</span>
                   <input
-                    type="number"
-                    name="age"
-                    value={formData.age}
+                    type="date"
+                    name="birthdate"
+                    value={formData.birthdate}
                     onChange={handleChange}
-                    min="1"
-                    max="120"
-                    className="w-full bg-transparent text-white font-medium focus:outline-none border-b border-gray-600 focus:border-red-500 py-1"
+                    className="w-full bg-transparent text-white font-medium focus:outline-none border-b border-gray-600 focus:border-red-500 py-1
+                    [&::-webkit-calendar-picker-indicator]:invert [&::-webkit-calendar-picker-indicator]:opacity-100"
                   />
                 </div>
               </div>
             </div>
-
-           {/* Input field: Birth date */}
-          <div className="bg-[#1c1c1c] rounded-xl p-4 border border-gray-700">
-            <div className="flex items-center gap-3">
-              <Calendar size={20} className="text-gray-400" />
-              <div className="flex-1">
-                <span className="text-xs text-gray-500 block">Fecha de nacimiento</span>
-                <input
-                  type="date"
-                  name="birthdate"
-                  value={formData.birthdate}
-                  onChange={handleChange}
-                  
-                  className="w-full bg-transparent text-white font-medium focus:outline-none border-b border-gray-600 focus:border-red-500 py-1
-                  [&::-webkit-calendar-picker-indicator]:invert [&::-webkit-calendar-picker-indicator]:opacity-100"
-                  // Makes the date picker icon white and visible on dark backgrounds
-                />
-              </div>
-            </div>
-          </div>
-          
           </div>
 
           {/* Action buttons section */}
@@ -201,7 +195,7 @@ export default function Profile() {
             {/* Button to save profile changes */}
             <button
               onClick={handleSave}
-              className="w-full py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl font-semibold transition shadow-md"
+              className="w-full py-3 bg-gray-600 hover:bg-gray-700 text-white rounded-xl font-semibold transition shadow-md"
             >
               Guardar cambios
             </button>
@@ -209,7 +203,7 @@ export default function Profile() {
             {/* Button to delete user account */}
             <button
               onClick={handleDelete}
-              className="w-full py-3 bg-gray-700 hover:bg-gray-600 text-white rounded-xl font-semibold transition shadow-md"
+              className="w-full py-3 bg-red-700 hover:bg-red-600 text-white rounded-xl font-semibold transition shadow-md"
             >
               Eliminar cuenta
             </button>

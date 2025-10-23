@@ -6,7 +6,7 @@ import { Eye, EyeOff } from "lucide-react";
 /**
  * SignUp Component
  * User registration form with comprehensive validation
- * Includes username, email, age, birthdate, password fields with visibility toggles
+ * Includes username, email, birthdate, password fields with visibility toggles
  * @returns {JSX.Element} Sign up form
  */
 export default function SignUp() {
@@ -16,7 +16,6 @@ export default function SignUp() {
   // Form input states for all registration fields
   const [usuario, setUsuario] = useState<string>("");
   const [email, setEmail] = useState<string>("");
-  const [edad, setEdad] = useState<string>("");
   const [fechaNacimiento, setFechaNacimiento] = useState<string>("");
   const [contrasena, setContrasena] = useState<string>("");
   const [confirmarContrasena, setConfirmarContrasena] = useState<string>("");
@@ -53,16 +52,6 @@ export default function SignUp() {
   };
 
   /**
-   * Validates age is a number between 1 and 120
-   * @param {string} edad - Age value to validate
-   * @returns {boolean} True if age is valid
-   */
-  const validarEdad = (edad: string): boolean => {
-    const edadNum = parseInt(edad);
-    return !isNaN(edadNum) && edadNum >= 1 && edadNum <= 120;
-  };
-
-  /**
    * Handles form submission with comprehensive validation
    * Validates all fields, registers user via API, and redirects to sign in on success
    * @param {React.FormEvent} e - Form submission event
@@ -82,13 +71,6 @@ export default function SignUp() {
       nuevosErrores.push("El correo electrónico es obligatorio.");
     } else if (!validarEmail(email)) {
       nuevosErrores.push("Debes ingresar un correo electrónico válido.");
-    }
-
-    // Validate age field - required and must be between 1-120
-    if (!edad) {
-      nuevosErrores.push("La edad es obligatoria.");
-    } else if (!validarEdad(edad)) {
-      nuevosErrores.push("La edad debe ser un número entre 1 y 120.");
     }
 
     // Validate birthdate field - required
@@ -125,7 +107,7 @@ export default function SignUp() {
 
     // Attempt to register user via API
     try {
-      await registrarUsuario(usuario, email, parseInt(edad), fechaNacimiento, contrasena);
+      await registrarUsuario(usuario, email, fechaNacimiento, contrasena);
       // Show success message and redirect to sign in page
       alert("¡Registro exitoso!");
       navigate("/sign_in");
@@ -146,7 +128,7 @@ export default function SignUp() {
         <button
           onClick={() => navigate(-1)}
           className="absolute top-4 left-4 text-gray-400 hover:text-white transition-colors"
-          aria-label="Volver"
+          aria-label="Go back"
         >
           {/* Left chevron SVG icon */}
           <svg
@@ -208,20 +190,6 @@ export default function SignUp() {
             />
           </div>
 
-          {/* Age input field with number type and min/max constraints */}
-          <div>
-            <label className="block text-sm mb-1 text-gray-300">Edad</label>
-            <input
-              type="number"
-              value={edad}
-              onChange={(e) => setEdad(e.target.value)}
-              min="1"
-              max="120"
-              className="w-full p-2 rounded bg-[#1c1c1c] border border-gray-700 focus:outline-none focus:border-red-600"
-              placeholder="Ingresa tu edad"
-            />
-          </div>
-
           {/* Birthdate input field with date picker */}
           <div>
             <label className="block text-sm mb-1 text-gray-300">Fecha de nacimiento</label>
@@ -230,9 +198,8 @@ export default function SignUp() {
               value={fechaNacimiento}
               onChange={(e) => setFechaNacimiento(e.target.value)}
               className="w-full p-2 rounded bg-[#1c1c1c] border border-gray-700 focus:outline-none focus:border-red-600
-              [color-scheme:dark]
+              [color-scheme:white]
               [&::-webkit-calendar-picker-indicator]:invert"
-              placeholder="Selecciona tu fecha de nacimiento"
             />
           </div>
 
