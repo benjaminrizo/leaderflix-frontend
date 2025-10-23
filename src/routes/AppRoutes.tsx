@@ -7,6 +7,7 @@ import ForgotPassword from "../pages/forgotPassword";
 import ResetPassword from "../pages/reset_password";
 import About from "../pages/about";
 
+
 const AppRoutes = () => {
   return (
     <BrowserRouter>
