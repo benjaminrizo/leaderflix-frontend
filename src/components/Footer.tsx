@@ -73,7 +73,7 @@ export default function Footer() {
             </div>
             <button
               onClick={() => setShowAccessibilityModal(true)}
-              className="text-sm text-gray-400 hover:text-red-500 underline transition"
+              className="text-sm text-gray-400 hover:text-red-500 transition"
             >
               Ver atajos de teclado
             </button>
@@ -114,8 +114,7 @@ export default function Footer() {
               <div>
                 <h4 className="text-red-400 font-semibold mb-2">🎬 Navegación General</h4>
                 <ul className="space-y-1">
-                  <li><span className="text-red-400 font-semibold">⌘ + H</span> / <span className="font-semibold">Ctrl + H</span> — Ir a Inicio</li>
-                  <li><span className="text-red-400 font-semibold">⌘ + F</span> / <span className="font-semibold">Ctrl + F</span> — Abrir buscador</li>
+                  <li><span className="text-red-400 font-semibold">⌘ + H</span> / <span className="font-semibold">Alt + H</span> — Ir a Inicio</li>
                   <li><span className="text-red-400 font-semibold">⌘ + P</span> / <span className="font-semibold">Alt + P</span> — Ir al Perfil</li>
                   <li><span className="text-red-400 font-semibold">⌘ + L</span> / <span className="font-semibold">Alt + L</span> — Ir a Iniciar Sesión</li>
                 </ul>
@@ -125,7 +124,6 @@ export default function Footer() {
                 <h4 className="text-red-400 font-semibold mb-2">⭐ Interacción</h4>
                 <ul className="space-y-1">
                   <li><span className="text-red-400 font-semibold">⌘ + M</span> / <span className="font-semibold">Ctrl + M</span> — Abrir Mis Favoritas</li>
-                  <li><span className="text-red-400 font-semibold">⌘ + K</span> / <span className="font-semibold">Ctrl + K</span> — Activar navegación por teclado</li>
                 </ul>
               </div>
 
