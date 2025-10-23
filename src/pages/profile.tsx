@@ -21,7 +21,7 @@ export default function Profile() {
     id: "",
     email: "",
     username: "",
-    birthdate: "", // Birth date
+    birthdate: "",
   });
 
   // State to manage form data (editable fields)
@@ -180,7 +180,7 @@ export default function Profile() {
                   <input
                     type="date"
                     name="birthdate"
-                    value={formData.birthdate}
+                    value={formData.birthdate ? formData.birthdate.split("T")[0] : ""}
                     onChange={handleChange}
                     className="w-full bg-transparent text-white font-medium focus:outline-none border-b border-gray-600 focus:border-red-500 py-1
                     [&::-webkit-calendar-picker-indicator]:invert [&::-webkit-calendar-picker-indicator]:opacity-100"

@@ -92,6 +92,7 @@ export async function getUserProfile(id: string) {
 export async function updateUserProfile(id: string, formData: {
   email: string;
   username: string;
+  birthdate: string;
 }) {
   const token = localStorage.getItem("token");
 
