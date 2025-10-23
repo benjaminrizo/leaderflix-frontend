@@ -116,7 +116,6 @@ export default function Footer() {
                 <ul className="space-y-1">
                   <li><span className="text-red-400 font-semibold">⌘ + H</span> / <span className="font-semibold">Alt + H</span> — Ir a Inicio</li>
                   <li><span className="text-red-400 font-semibold">⌘ + P</span> / <span className="font-semibold">Alt + P</span> — Ir al Perfil</li>
-                  <li><span className="text-red-400 font-semibold">⌘ + L</span> / <span className="font-semibold">Alt + L</span> — Ir a Iniciar Sesión</li>
                 </ul>
               </div>
 
