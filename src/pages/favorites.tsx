@@ -151,13 +151,6 @@ export default function Favorites() {
                     e.currentTarget.currentTime = 0;
                   }}
                 />
-                
-                {/* Play button overlay */}
-                <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-60 transition-all duration-300 flex items-center justify-center pointer-events-none">
-                  <div className="opacity-0 group-hover:opacity-100 transition-opacity">
-                    <div className="text-white text-4xl">▶</div>
-                  </div>
-                </div>
 
                 {/* Duration badge */}
                 <div className="absolute bottom-2 right-2 bg-black bg-opacity-70 px-2 py-1 rounded text-xs text-white">
