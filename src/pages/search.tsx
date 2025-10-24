@@ -1,5 +1,8 @@
-import { useEffect, useState } from "react";
-import { Heart } from "lucide-react";
+import { useState, useEffect } from "react";
+import { useSearchParams, useNavigate } from "react-router-dom";
+import { ArrowLeft, Heart, Search as SearchIcon } from "lucide-react";
+import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
 
 interface VideoFile {
   id: number;
@@ -20,14 +23,14 @@ interface Video {
   duration: number;
 }
 
-type Props = {
-  title: string;
-};
+export default function SearchResults() {
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const query = searchParams.get("q") || "";
 
-export default function MovieSection({ title }: Props) {
   const [videos, setVideos] = useState<Video[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string>("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
   const [selectedVideo, setSelectedVideo] = useState<Video | null>(null);
   const [favorites, setFavorites] = useState<number[]>([]);
 
@@ -39,45 +42,36 @@ export default function MovieSection({ title }: Props) {
     }
   }, []);
 
-  const getSearchQuery = (sectionTitle: string): string => {
-    const queryMap: { [key: string]: string } = {
-      "Recomendadas para ti": "nature",
-      "Más populares": "popular",
-      "Nuevos lanzamientos": "technology",
-      "Series destacadas": "ocean",
-    };
-    return queryMap[sectionTitle] || "nature";
-  };
-
+  // Buscar videos cuando cambia la query
   useEffect(() => {
-    async function fetchVideos() {
-      const query = getSearchQuery(title);
-      
-      const endpoint = title === "Más populares" 
-        ? "/videos/popular"
-        : `/videos/search?query=${encodeURIComponent(query)}`;
-      
-      const url = `${import.meta.env.VITE_API_URL}/api${endpoint}`;
-      
+    if (!query) return;
+
+    async function searchVideos() {
       setIsLoading(true);
       setError("");
 
       try {
+        const url = `${import.meta.env.VITE_API_URL}/api/videos/search?query=${encodeURIComponent(query)}`;
+        console.log('Buscando:', url);
+        
         const response = await fetch(url);
         if (!response.ok) {
-          throw new Error(`Response status: ${response.status}`);
+          throw new Error(`Error: ${response.status}`);
         }
+        
         const result = await response.json();
-        setVideos((result.videos || []).slice(0, 6));
+        console.log('Resultados:', result);
+        setVideos(result.videos || []);
       } catch (error: any) {
-        setError(`Error al cargar los videos: ${error.message}`);
+        console.error('Error en búsqueda:', error);
+        setError(`No se pudieron cargar los resultados: ${error.message}`);
       } finally {
         setIsLoading(false);
       }
     }
 
-    fetchVideos();
-  }, [title]);
+    searchVideos();
+  }, [query]);
 
   const getBestVideoQuality = (videoFiles: VideoFile[]): string => {
     const hdVideo = videoFiles.find(file => file.quality === "hd");
@@ -100,11 +94,9 @@ export default function MovieSection({ title }: Props) {
     let savedVideos = JSON.parse(localStorage.getItem("favoriteVideos") || "[]");
     
     if (favorites.includes(videoId)) {
-      // Remover de favoritos
       updatedFavorites = favorites.filter(id => id !== videoId);
       savedVideos = savedVideos.filter((v: Video) => v.id !== videoId);
     } else {
-      // Agregar a favoritos
       updatedFavorites = [...favorites, videoId];
       savedVideos.push(video);
     }
@@ -116,27 +108,71 @@ export default function MovieSection({ title }: Props) {
 
   const isFavorite = (videoId: number) => favorites.includes(videoId);
 
-  const placeholders = new Array(6).fill(null);
-
   return (
-    <>
-      <section className="px-8 py-6">
-        <h2 className="text-white text-lg font-semibold mb-4">{title}</h2>
-        
-        {error && (
-          <p className="text-red-500 mb-4">{error}</p>
+    <div className="bg-[#0f0f0f] min-h-screen text-white flex flex-col">
+      <Navbar />
+      
+      <main className="flex-1 px-8 py-8">
+        {/* Header */}
+        <div className="flex items-center gap-4 mb-8">
+          <button
+            onClick={() => navigate("/home")}
+            className="p-2 hover:bg-gray-800 rounded-full transition"
+            aria-label="Volver"
+          >
+            <ArrowLeft size={24} />
+          </button>
+          <div>
+            <h1 className="text-3xl font-bold flex items-center gap-3">
+              <SearchIcon size={32} className="text-red-500" />
+              Resultados de búsqueda
+            </h1>
+            <p className="text-gray-400 text-sm mt-1">
+              Buscando: <span className="text-white font-semibold">"{query}"</span>
+              {!isLoading && ` - ${videos.length} ${videos.length === 1 ? "resultado" : "resultados"}`}
+            </p>
+          </div>
+        </div>
+
+        {/* Estados de carga y error */}
+        {isLoading && (
+          <div className="flex items-center justify-center py-20">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-red-500 mx-auto mb-4"></div>
+              <p className="text-gray-400">Buscando videos...</p>
+            </div>
+          </div>
         )}
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
-          {isLoading ? (
-            placeholders.map((_, i) => (
-              <div
-                key={i}
-                className="aspect-[2/3] bg-gray-800 rounded-xl animate-pulse"
-              />
-            ))
-          ) : (
-            videos.map((video) => (
+        {error && (
+          <div className="bg-red-900/30 border border-red-600 rounded-xl p-6 text-center">
+            <p className="text-red-400">{error}</p>
+          </div>
+        )}
+
+        {/* Sin resultados */}
+        {!isLoading && !error && videos.length === 0 && (
+          <div className="flex flex-col items-center justify-center py-20 text-center">
+            <SearchIcon size={80} className="text-gray-700 mb-4" />
+            <h2 className="text-2xl font-semibold text-gray-400 mb-2">
+              No se encontraron resultados
+            </h2>
+            <p className="text-gray-500 mb-6">
+              Intenta con otros términos de búsqueda
+            </p>
+            <button
+              onClick={() => navigate("/home")}
+              className="px-6 py-3 bg-red-600 hover:bg-red-700 rounded-lg font-semibold transition"
+            >
+              Volver al inicio
+            </button>
+          </div>
+        )}
+
+        {/* Resultados */}
+        {!isLoading && !error && videos.length > 0 && (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+            {videos.map((video) => (
               <div
                 key={video.id}
                 onClick={() => handleVideoClick(video)}
@@ -187,10 +223,12 @@ export default function MovieSection({ title }: Props) {
                   />
                 </button>
               </div>
-            ))
-          )}
-        </div>
-      </section>
+            ))}
+          </div>
+        )}
+      </main>
+
+      <Footer />
 
       {/* Modal para reproducir video */}
       {selectedVideo && (
@@ -248,6 +286,6 @@ export default function MovieSection({ title }: Props) {
           </div>
         </div>
       )}
-    </>
+    </div>
   );
 }

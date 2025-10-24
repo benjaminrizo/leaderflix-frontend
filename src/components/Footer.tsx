@@ -50,6 +50,7 @@ export default function Footer() {
             <ul className="space-y-2 text-sm">
               <li><Link to="/" className="hover:text-red-500 transition">Inicio</Link></li>
               <li><Link to="/home" className="hover:text-red-500 transition">Películas</Link></li>
+              <li><Link to="/favorites" className="hover:text-red-500 transition">Mis Favoritas</Link></li>
               <li><Link to="/about" className="hover:text-red-500 transition">Acerca de</Link></li>
             </ul>
           </div>
@@ -116,13 +117,15 @@ export default function Footer() {
                 <ul className="space-y-1">
                   <li><span className="text-red-400 font-semibold">⌘ + H</span> / <span className="font-semibold">Alt + H</span> — Ir a Inicio</li>
                   <li><span className="text-red-400 font-semibold">⌘ + P</span> / <span className="font-semibold">Alt + P</span> — Ir al Perfil</li>
+                  <li><span className="text-red-400 font-semibold">⌘ + M</span> / <span className="font-semibold">Alt + M</span> — Ir a Favoritas</li>
                 </ul>
               </div>
 
               <div>
-                <h4 className="text-red-400 font-semibold mb-2">⭐ Interacción</h4>
+                <h4 className="text-red-400 font-semibold mb-2">⭐ Interacción con Videos</h4>
                 <ul className="space-y-1">
-                  <li><span className="text-red-400 font-semibold">⌘ + M</span> / <span className="font-semibold">Ctrl + M</span> — Abrir Mis Favoritas</li>
+                  <li><span className="text-red-400 font-semibold">Click en ❤️</span> — Agregar/quitar de Favoritas</li>
+                  <li><span className="text-red-400 font-semibold">Click en video</span> — Reproducir película</li>
                 </ul>
               </div>
 
@@ -139,8 +142,8 @@ export default function Footer() {
 
             {/* Footer of modal */}
             <p className="text-xs text-gray-500 mt-4 leading-relaxed">
-              Los atajos funcionan tanto en Mac (⌘, ⌥) como en Windows/Linux (Ctrl, Alt).  
-              Puedes personalizar tus preferencias de accesibilidad desde tu perfil.
+              Los atajos funcionan tanto en Mac (⌘, ⌥) como en Windows/Linux (Alt).  
+              Puedes activar/desactivar los atajos desde el botón 🎹 en el navbar.
             </p>
 
             {/* Close button */}
