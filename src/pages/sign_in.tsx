@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { loginUsuario } from "../services/api";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 
 /**
  * SignIn Component
@@ -19,6 +19,7 @@ const SignIn: React.FC = () => {
   const [mostrarContrasena, setMostrarContrasena] = useState(false);
   const [aceptaTerminos, setAceptaTerminos] = useState(false);
   const [errores, setErrores] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(false); // Loading state for API request
 
   /**
    * Validates email format using regex
@@ -78,6 +79,10 @@ const SignIn: React.FC = () => {
       return;
     }
 
+    // Start loading state
+    setIsLoading(true);
+    setErrores([]); // Clear previous errors
+
     // Attempt authentication via API
     try {
       const data = await loginUsuario(usuario, contrasena);
@@ -86,11 +91,6 @@ const SignIn: React.FC = () => {
       localStorage.setItem("token", data.token);
       localStorage.setItem("userId", data.user.id);
 
-      // Redundant token storage (duplicate code - can be removed)
-      if (data.token) {
-        localStorage.setItem("token", data.token);
-      }
-
       // Show success message and redirect to home page
       alert("Inicio de sesión exitoso");
       navigate("/home");
@@ -98,6 +98,9 @@ const SignIn: React.FC = () => {
       // Log error and display authentication failure message
       console.error("Error:", error);
       setErrores([error.message || "Credenciales inválidas."]);
+    } finally {
+      // Stop loading state regardless of success or failure
+      setIsLoading(false);
     }
   };
 
@@ -133,7 +136,8 @@ const SignIn: React.FC = () => {
               type="email"
               value={usuario}
               onChange={(e) => setUsuario(e.target.value)}
-              className="w-full p-2 rounded bg-[#1c1c1c] border border-gray-700 focus:outline-none focus:border-red-600"
+              disabled={isLoading} // Disable input while loading
+              className="w-full p-2 rounded bg-[#1c1c1c] border border-gray-700 focus:outline-none focus:border-red-600 disabled:opacity-50 disabled:cursor-not-allowed"
               placeholder="tu@email.com"
             />
           </div>
@@ -147,14 +151,16 @@ const SignIn: React.FC = () => {
                 type={mostrarContrasena ? "text" : "password"}
                 value={contrasena}
                 onChange={(e) => setContrasena(e.target.value)}
-                className="w-full p-2 rounded bg-[#1c1c1c] border border-gray-700 focus:outline-none focus:border-red-600 pr-10"
+                disabled={isLoading} // Disable input while loading
+                className="w-full p-2 rounded bg-[#1c1c1c] border border-gray-700 focus:outline-none focus:border-red-600 pr-10 disabled:opacity-50 disabled:cursor-not-allowed"
                 placeholder="Ingresa tu contraseña"
               />
               {/* Toggle visibility button positioned absolutely in input */}
               <button
                 type="button"
                 onClick={() => setMostrarContrasena(!mostrarContrasena)}
-                className="absolute right-3 top-2.5 text-gray-400 hover:text-gray-200 transition"
+                disabled={isLoading} // Disable button while loading
+                className="absolute right-3 top-2.5 text-gray-400 hover:text-gray-200 transition disabled:opacity-50 disabled:cursor-not-allowed"
                 aria-label={
                   mostrarContrasena ? "Ocultar contraseña" : "Mostrar contraseña"
                 }
@@ -179,6 +185,8 @@ const SignIn: React.FC = () => {
               id="terms"
               checked={aceptaTerminos}
               onChange={(e) => setAceptaTerminos(e.target.checked)}
+              disabled={isLoading} // Disable checkbox while loading
+              className="disabled:opacity-50 disabled:cursor-not-allowed"
             />
             <label htmlFor="terms">Acepto Términos y Condiciones</label>
           </div>
@@ -196,12 +204,15 @@ const SignIn: React.FC = () => {
             </div>
           )}
 
-          {/* Submit button */}
+          {/* Submit button with loading state */}
           <button
             type="submit"
-            className="bg-red-600 hover:bg-red-700 p-2 rounded font-semibold transition-colors"
+            disabled={isLoading} // Disable button while loading
+            className="bg-red-600 hover:bg-red-700 p-2 rounded font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
-            Iniciar Sesión
+            {/* Show spinner icon when loading */}
+            {isLoading && <Loader2 size={18} className="animate-spin" />}
+            {isLoading ? "Iniciando sesión..." : "Iniciar Sesión"}
           </button>
 
           {/* Sign up link for new users */}

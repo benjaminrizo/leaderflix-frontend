@@ -1,16 +1,18 @@
+// Import React hooks and utilities
 import { useState, useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, Heart, Search as SearchIcon } from "lucide-react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 
+// Interface for individual video file information
 interface VideoFile {
   id: number;
   quality: string;
   file_type: string;
   link: string;
 }
-
+// Interface for video data including user and metadata
 interface Video {
   id: number;
   image: string;
@@ -23,18 +25,20 @@ interface Video {
   duration: number;
 }
 
+// SearchResults component: displays video search results and handles favorites
 export default function SearchResults() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const query = searchParams.get("q") || "";
 
+  // Component states
   const [videos, setVideos] = useState<Video[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [selectedVideo, setSelectedVideo] = useState<Video | null>(null);
   const [favorites, setFavorites] = useState<number[]>([]);
 
-  // Cargar favoritos del localStorage
+  // Load saved favorites from localStorage on component mount
   useEffect(() => {
     const savedFavorites = localStorage.getItem("favorites");
     if (savedFavorites) {
@@ -42,7 +46,7 @@ export default function SearchResults() {
     }
   }, []);
 
-  // Buscar videos cuando cambia la query
+  // Fetch videos whenever the search query changes
   useEffect(() => {
     if (!query) return;
 
@@ -51,14 +55,17 @@ export default function SearchResults() {
       setError("");
 
       try {
+        // Build API URL with encoded query
         const url = `${import.meta.env.VITE_API_URL}/api/videos/search?query=${encodeURIComponent(query)}`;
         console.log('Buscando:', url);
-        
+
+        // Fetch search results
         const response = await fetch(url);
         if (!response.ok) {
           throw new Error(`Error: ${response.status}`);
         }
         
+        // Parse and store response data
         const result = await response.json();
         console.log('Resultados:', result);
         setVideos(result.videos || []);
@@ -72,40 +79,43 @@ export default function SearchResults() {
 
     searchVideos();
   }, [query]);
-
+  // Return best available video quality link
   const getBestVideoQuality = (videoFiles: VideoFile[]): string => {
     const hdVideo = videoFiles.find(file => file.quality === "hd");
     return hdVideo ? hdVideo.link : videoFiles[0]?.link || "";
   };
-
+    // Handle video click to open modal 
   const handleVideoClick = (video: Video) => {
     setSelectedVideo(video);
   };
-
+  // Close video modal
   const closeModal = () => {
     setSelectedVideo(null);
   };
 
-  // Funciones para manejar favoritos
+  // Add or remove a video from favorites
   const toggleFavorite = (e: React.MouseEvent, videoId: number, video: Video) => {
-    e.stopPropagation();
+    e.stopPropagation(); // Prevent triggering parent click
+
     
     let updatedFavorites: number[];
     let savedVideos = JSON.parse(localStorage.getItem("favoriteVideos") || "[]");
     
     if (favorites.includes(videoId)) {
+      // Remove from favorites
       updatedFavorites = favorites.filter(id => id !== videoId);
       savedVideos = savedVideos.filter((v: Video) => v.id !== videoId);
     } else {
+      // Add to favorites
       updatedFavorites = [...favorites, videoId];
       savedVideos.push(video);
     }
-    
+    // Update states and localStorage
     setFavorites(updatedFavorites);
     localStorage.setItem("favorites", JSON.stringify(updatedFavorites));
     localStorage.setItem("favoriteVideos", JSON.stringify(savedVideos));
   };
-
+  // Check if a video is in favorites
   const isFavorite = (videoId: number) => favorites.includes(videoId);
 
   return (
@@ -113,8 +123,9 @@ export default function SearchResults() {
       <Navbar />
       
       <main className="flex-1 px-8 py-8">
-        {/* Header */}
+        {/* Page header section */}
         <div className="flex items-center gap-4 mb-8">
+          {/* Back to home button */}
           <button
             onClick={() => navigate("/home")}
             className="p-2 hover:bg-gray-800 rounded-full transition"
@@ -122,6 +133,7 @@ export default function SearchResults() {
           >
             <ArrowLeft size={24} />
           </button>
+           {/* Search title and info */}
           <div>
             <h1 className="text-3xl font-bold flex items-center gap-3">
               <SearchIcon size={32} className="text-red-500" />
@@ -143,14 +155,14 @@ export default function SearchResults() {
             </div>
           </div>
         )}
-
+        {/* Error message */}
         {error && (
           <div className="bg-red-900/30 border border-red-600 rounded-xl p-6 text-center">
             <p className="text-red-400">{error}</p>
           </div>
         )}
 
-        {/* Sin resultados */}
+        {/* No results found */}
         {!isLoading && !error && videos.length === 0 && (
           <div className="flex flex-col items-center justify-center py-20 text-center">
             <SearchIcon size={80} className="text-gray-700 mb-4" />
@@ -169,7 +181,7 @@ export default function SearchResults() {
           </div>
         )}
 
-        {/* Resultados */}
+        {/* Display search results */}
         {!isLoading && !error && videos.length > 0 && (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
             {videos.map((video) => (
@@ -200,7 +212,7 @@ export default function SearchResults() {
                   {video.duration}s
                 </div>
 
-                {/* Favorite button */}
+                {/* Favorite toggle button */}
                 <button
                   onClick={(e) => toggleFavorite(e, video.id, video)}
                   className="absolute top-2 right-2 p-2 bg-black bg-opacity-70 rounded-full hover:bg-opacity-90 transition-all z-10"
@@ -223,7 +235,7 @@ export default function SearchResults() {
 
       <Footer />
 
-      {/* Modal para reproducir video */}
+      {/* Modal to play selected video */}
       {selectedVideo && (
         <div 
           className="fixed inset-0 bg-black bg-opacity-95 z-50 flex items-center justify-center p-8"
@@ -231,8 +243,9 @@ export default function SearchResults() {
         >
           <div 
             className="relative w-full max-w-4xl max-h-[85vh] flex flex-col"
-            onClick={(e) => e.stopPropagation()}
+            onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside
           >
+            {/* Close modal button */}
             <button
               onClick={closeModal}
               className="absolute -top-10 right-0 text-white text-3xl hover:text-gray-300 transition-colors z-10"
@@ -240,7 +253,7 @@ export default function SearchResults() {
             >
               ✕
             </button>
-
+            {/* Video player */}
             <video
               controls
               autoPlay
@@ -260,7 +273,7 @@ export default function SearchResults() {
                 </p>
               </div>
               
-              {/* Botón de favorito en el modal */}
+              {/* Favorite toggle in modal */}
               <button
                 onClick={(e) => toggleFavorite(e, selectedVideo.id, selectedVideo)}
                 className="p-3 bg-gray-800 hover:bg-gray-700 rounded-full transition-all"
