@@ -164,10 +164,10 @@ export default function MovieSection({ title }: Props) {
                   {video.duration}s
                 </div>
 
-                {/* Favorite button */}
+                {/* Favorite button con tooltip */}
                 <button
                   onClick={(e) => toggleFavorite(e, video.id, video)}
-                  className="absolute top-2 right-2 p-2 bg-black bg-opacity-70 rounded-full hover:bg-opacity-90 transition-all z-10"
+                  className="absolute top-2 right-2 p-2 bg-black bg-opacity-70 rounded-full hover:bg-opacity-90 transition-all z-10 group"
                   aria-label={isFavorite(video.id) ? "Quitar de favoritos" : "Agregar a favoritos"}
                 >
                   <Heart
@@ -178,6 +178,12 @@ export default function MovieSection({ title }: Props) {
                         : "text-white hover:text-red-500"
                     }`}
                   />
+                  {/* Tooltip */}
+                  <span className="absolute right-10 top-1/2 -translate-y-1/2 bg-black text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                    {isFavorite(video.id)
+                      ? "Quitar de favoritos"
+                      : "Agregar a favoritos"}
+                  </span>
                 </button>
               </div>
             ))
@@ -195,12 +201,16 @@ export default function MovieSection({ title }: Props) {
             className="relative w-full max-w-4xl max-h-[85vh] flex flex-col"
             onClick={(e) => e.stopPropagation()}
           >
+            {/* Botón cerrar con tooltip */}
             <button
               onClick={closeModal}
-              className="absolute -top-10 right-0 text-white text-3xl hover:text-gray-300 transition-colors z-10"
+              className="absolute -top-10 right-0 text-white text-3xl hover:text-gray-300 transition-colors z-10 group"
               aria-label="Cerrar"
             >
               ✕
+              <span className="absolute right-8 top-1/2 -translate-y-1/2 bg-black text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                Cerrar video
+              </span>
             </button>
 
             <video
@@ -222,10 +232,10 @@ export default function MovieSection({ title }: Props) {
                 </p>
               </div>
               
-              {/* Botón de favorito en el modal */}
+              {/* Botón de favorito dentro del modal con tooltip */}
               <button
                 onClick={(e) => toggleFavorite(e, selectedVideo.id, selectedVideo)}
-                className="p-3 bg-gray-800 hover:bg-gray-700 rounded-full transition-all"
+                className="p-3 bg-gray-800 hover:bg-gray-700 rounded-full transition-all relative group"
                 aria-label={isFavorite(selectedVideo.id) ? "Quitar de favoritos" : "Agregar a favoritos"}
               >
                 <Heart
@@ -236,6 +246,12 @@ export default function MovieSection({ title }: Props) {
                       : "text-white hover:text-red-500"
                   }`}
                 />
+                {/* Tooltip */}
+                <span className="absolute left-full ml-2 top-1/2 -translate-y-1/2 bg-black text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                  {isFavorite(selectedVideo.id)
+                    ? "Quitar de favoritos"
+                    : "Agregar a favoritos"}
+                </span>
               </button>
             </div>
           </div>
