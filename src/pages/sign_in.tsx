@@ -17,7 +17,6 @@ const SignIn: React.FC = () => {
   const [usuario, setUsuario] = useState("");
   const [contrasena, setContrasena] = useState("");
   const [mostrarContrasena, setMostrarContrasena] = useState(false);
-  const [aceptaTerminos, setAceptaTerminos] = useState(false);
   const [errores, setErrores] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false); // Loading state for API request
 
@@ -66,11 +65,6 @@ const SignIn: React.FC = () => {
       nuevosErrores.push(
         "La contraseña debe tener mínimo 8 caracteres, una mayúscula y un signo."
       );
-    }
-
-    // Validate terms acceptance
-    if (!aceptaTerminos) {
-      nuevosErrores.push("Debes aceptar los Términos y Condiciones.");
     }
 
     // If validation errors exist, display them and stop submission
@@ -176,19 +170,6 @@ const SignIn: React.FC = () => {
             <Link to="/forgot_password" className="hover:text-red-500">
               ¿Olvidaste tu contraseña?
             </Link>
-          </div>
-
-          {/* Terms and conditions checkbox */}
-          <div className="flex items-center justify-center space-x-2 text-xs text-gray-300">
-            <input
-              type="checkbox"
-              id="terms"
-              checked={aceptaTerminos}
-              onChange={(e) => setAceptaTerminos(e.target.checked)}
-              disabled={isLoading} // Disable checkbox while loading
-              className="disabled:opacity-50 disabled:cursor-not-allowed"
-            />
-            <label htmlFor="terms">Acepto Términos y Condiciones</label>
           </div>
 
           {/* Error messages container - displayed when validation fails */}

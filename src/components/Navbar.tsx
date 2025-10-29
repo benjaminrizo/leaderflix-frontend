@@ -1,4 +1,4 @@
-import { Search, Star, User, LogOut, Menu, X, Keyboard } from "lucide-react";
+import { Search, Heart, User, LogOut, Menu, X, Keyboard } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 
@@ -97,9 +97,9 @@ export default function Navbar() {
         <div className="hidden md:flex items-center gap-3">
           {/* Favoritas */}
           <div className="relative group">
-            <Link to="/favorites">
-              <button className="flex items-center gap-2 text-gray-300 hover:text-white transition">
-                <Star size={18} />
+            <Link to="/favorites" className="cursor-pointer">
+              <button className="flex items-center gap-2 text-gray-300 hover:text-white transition cursor-pointer">
+                <Heart size={18}/>
                 <span className="hidden lg:inline">Favoritas</span>
               </button>
             </Link>
@@ -110,9 +110,9 @@ export default function Navbar() {
 
           {/* Perfil */}
           <div className="relative group">
-            <Link to="/profile">
+            <Link to="/profile" className="cursor-pointer">
               <button
-                className="p-2 bg-gray-700 rounded-full hover:bg-gray-600 transition"
+                className="p-2 bg-gray-700 rounded-full hover:bg-gray-600 transition cursor-pointer"
                 aria-label="Profile"
               >
                 <User size={18} />
@@ -127,7 +127,7 @@ export default function Navbar() {
           <div className="relative group">
             <button
               onClick={toggleShortcuts}
-              className={`p-2 rounded-full transition ${
+              className={`p-2 rounded-full transition cursor-pointer ${
                 shortcutsEnabled
                   ? "bg-green-600 hover:bg-green-700"
                   : "bg-gray-700 hover:bg-gray-600"
@@ -144,7 +144,7 @@ export default function Navbar() {
           <div className="relative group">
             <button
               onClick={handleLogout}
-              className="p-2 bg-red-600 hover:bg-red-700 rounded-full transition"
+              className="p-2 bg-red-600 hover:bg-red-700 rounded-full transition cursor-pointer"
               aria-label="Cerrar sesión"
             >
               <LogOut size={18} />
@@ -190,7 +190,7 @@ export default function Navbar() {
           <div className="flex flex-col gap-2 p-4">
             <Link to="/favorites" onClick={() => setIsMenuOpen(false)}>
               <button className="flex items-center gap-3 w-full text-gray-300 hover:text-white transition py-3 px-4 rounded-lg hover:bg-gray-800">
-                <Star size={18} /> Favoritas
+                <Heart size={18} /> Favoritas
               </button>
             </Link>
 

@@ -24,9 +24,6 @@ export default function SignUp() {
   const [mostrarContrasena, setMostrarContrasena] = useState(false);
   const [mostrarConfirmarContrasena, setMostrarConfirmarContrasena] = useState(false);
   
-  // Terms and conditions acceptance state
-  const [aceptaTerminos, setAceptaTerminos] = useState(false);
-  
   // Error messages array state
   const [errores, setErrores] = useState<string[]>([]);
 
@@ -94,10 +91,6 @@ export default function SignUp() {
       nuevosErrores.push("Las contraseñas no coinciden.");
     }
 
-    // Validate terms acceptance - required
-    if (!aceptaTerminos) {
-      nuevosErrores.push("Debes aceptar los Términos y Condiciones.");
-    }
 
     // If validation errors exist, display them and stop submission
     if (nuevosErrores.length > 0) {
@@ -258,17 +251,6 @@ export default function SignUp() {
                 {mostrarConfirmarContrasena ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
             </div>
-          </div>
-
-          {/* Terms and conditions checkbox - required for registration */}
-          <div className="flex items-center justify-center space-x-2 text-xs text-gray-300">
-            <input
-              type="checkbox"
-              id="terms"
-              checked={aceptaTerminos}
-              onChange={(e) => setAceptaTerminos(e.target.checked)}
-            />
-            <label htmlFor="terms">Acepto Términos y Condiciones</label>
           </div>
 
           {/* Error messages display - shown when validation fails */}
