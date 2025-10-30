@@ -22,22 +22,16 @@ interface Video {
 
 type Props = {
   title: string;
+  favorites: number[]; // Recibe favoritos desde el padre
+  onToggleFavorite: (videoId: number, video: Video) => Promise<void>; // Función del padre para manejar favoritos
 };
 
-export default function MovieSection({ title }: Props) {
+export default function MovieSection({ title, favorites, onToggleFavorite }: Props) {
   const [videos, setVideos] = useState<Video[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>("");
   const [selectedVideo, setSelectedVideo] = useState<Video | null>(null);
-  const [favorites, setFavorites] = useState<number[]>([]);
-
-  // Cargar favoritos del localStorage
-  useEffect(() => {
-    const savedFavorites = localStorage.getItem("favorites");
-    if (savedFavorites) {
-      setFavorites(JSON.parse(savedFavorites));
-    }
-  }, []);
+  const [isTogglingFavorite, setIsTogglingFavorite] = useState<number | null>(null);
 
   const getSearchQuery = (sectionTitle: string): string => {
     const queryMap: { [key: string]: string } = {
@@ -92,26 +86,26 @@ export default function MovieSection({ title }: Props) {
     setSelectedVideo(null);
   };
 
-  // Funciones para manejar favoritos
-  const toggleFavorite = (e: React.MouseEvent, videoId: number, video: Video) => {
+  /**
+   * Maneja el toggle de favoritos llamando a la función del padre
+   * Muestra estado de carga mientras se procesa
+   */
+  const handleToggleFavorite = async (e: React.MouseEvent, videoId: number, video: Video) => {
     e.stopPropagation();
     
-    let updatedFavorites: number[];
-    let savedVideos = JSON.parse(localStorage.getItem("favoriteVideos") || "[]");
+    // Evitar múltiples clicks mientras se procesa
+    if (isTogglingFavorite === videoId) return;
     
-    if (favorites.includes(videoId)) {
-      // Remover de favoritos
-      updatedFavorites = favorites.filter(id => id !== videoId);
-      savedVideos = savedVideos.filter((v: Video) => v.id !== videoId);
-    } else {
-      // Agregar a favoritos
-      updatedFavorites = [...favorites, videoId];
-      savedVideos.push(video);
+    setIsTogglingFavorite(videoId);
+    
+    try {
+      await onToggleFavorite(videoId, video);
+    } catch (error) {
+      console.error("Error al actualizar favorito:", error);
+      // Aquí podrías mostrar un mensaje de error al usuario
+    } finally {
+      setIsTogglingFavorite(null);
     }
-    
-    setFavorites(updatedFavorites);
-    localStorage.setItem("favorites", JSON.stringify(updatedFavorites));
-    localStorage.setItem("favoriteVideos", JSON.stringify(savedVideos));
   };
 
   const isFavorite = (videoId: number) => favorites.includes(videoId);
@@ -164,10 +158,13 @@ export default function MovieSection({ title }: Props) {
                   {video.duration}s
                 </div>
 
-                {/* Favorite button con tooltip */}
+                {/* Favorite button con tooltip y estado de carga */}
                 <button
-                  onClick={(e) => toggleFavorite(e, video.id, video)}
-                  className="absolute top-2 right-2 p-2 bg-black bg-opacity-70 rounded-full hover:bg-opacity-90 transition-all z-10 group"
+                  onClick={(e) => handleToggleFavorite(e, video.id, video)}
+                  disabled={isTogglingFavorite === video.id}
+                  className={`absolute top-2 right-2 p-2 bg-black bg-opacity-70 rounded-full hover:bg-opacity-90 transition-all z-10 group ${
+                    isTogglingFavorite === video.id ? 'cursor-wait opacity-70' : ''
+                  }`}
                   aria-label={isFavorite(video.id) ? "Quitar de favoritos" : "Agregar a favoritos"}
                 >
                   <Heart
@@ -176,10 +173,10 @@ export default function MovieSection({ title }: Props) {
                       isFavorite(video.id)
                         ? "fill-red-500 text-red-500"
                         : "text-white hover:text-red-500"
-                    }`}
+                    } ${isTogglingFavorite === video.id ? 'animate-pulse' : ''}`}
                   />
                   {/* Tooltip */}
-                  <span className="absolute right-10 top-1/2 -translate-y-1/2 bg-black text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                  <span className="absolute right-10 top-1/2 -translate-y-1/2 bg-black text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
                     {isFavorite(video.id)
                       ? "Quitar de favoritos"
                       : "Agregar a favoritos"}
@@ -208,7 +205,7 @@ export default function MovieSection({ title }: Props) {
               aria-label="Cerrar"
             >
               ✕
-              <span className="absolute right-8 top-1/2 -translate-y-1/2 bg-black text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+              <span className="absolute right-8 top-1/2 -translate-y-1/2 bg-black text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
                 Cerrar video
               </span>
             </button>
@@ -234,8 +231,11 @@ export default function MovieSection({ title }: Props) {
               
               {/* Botón de favorito dentro del modal con tooltip */}
               <button
-                onClick={(e) => toggleFavorite(e, selectedVideo.id, selectedVideo)}
-                className="p-3 bg-gray-800 hover:bg-gray-700 rounded-full transition-all relative group"
+                onClick={(e) => handleToggleFavorite(e, selectedVideo.id, selectedVideo)}
+                disabled={isTogglingFavorite === selectedVideo.id}
+                className={`p-3 bg-gray-800 hover:bg-gray-700 rounded-full transition-all relative group ${
+                  isTogglingFavorite === selectedVideo.id ? 'cursor-wait opacity-70' : ''
+                }`}
                 aria-label={isFavorite(selectedVideo.id) ? "Quitar de favoritos" : "Agregar a favoritos"}
               >
                 <Heart
@@ -244,10 +244,10 @@ export default function MovieSection({ title }: Props) {
                     isFavorite(selectedVideo.id)
                       ? "fill-red-500 text-red-500"
                       : "text-white hover:text-red-500"
-                  }`}
+                  } ${isTogglingFavorite === selectedVideo.id ? 'animate-pulse' : ''}`}
                 />
                 {/* Tooltip */}
-                <span className="absolute left-full ml-2 top-1/2 -translate-y-1/2 bg-black text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                <span className="absolute left-full ml-2 top-1/2 -translate-y-1/2 bg-black text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
                   {isFavorite(selectedVideo.id)
                     ? "Quitar de favoritos"
                     : "Agregar a favoritos"}

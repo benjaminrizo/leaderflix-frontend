@@ -162,3 +162,109 @@ export async function deleteUserAccount(id: string) {
     throw error;
   }
 }
+
+// ============================================
+// FUNCIONES DE FAVORITOS 
+// ============================================
+
+/**
+ * Get all favorites for a specific user
+ * @param {string} userId - User ID
+ * @returns {Promise<Array>} Array of favorite videos with their data
+ * @example
+ * const favorites = await getFavorites("user123");
+ * // [{ video_id: 1, image: "...", duration: 120, ... }, ...]
+ */
+export async function getFavorites(userId: string) {
+  const token = localStorage.getItem("token");
+
+  const response = await fetch(`${API_URL}/favorites/${userId}`, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error("Error al obtener favoritos");
+  }
+
+  return await response.json();
+}
+
+/**
+ * Add a video to user's favorites
+ * @param {string} userId - User ID
+ * @param {Object} videoData - Video information to save
+ * @param {number} videoData.video_id - Pexels video ID
+ * @param {string} videoData.image - Video thumbnail URL
+ * @param {number} videoData.duration - Video duration in seconds
+ * @param {string} videoData.video_url - Video playback URL
+ * @param {string} videoData.user_name - Video creator name
+ * @returns {Promise<any>} API response with created favorite
+ * @example
+ * await addFavorite("user123", {
+ *   video_id: 1,
+ *   image: "https://...",
+ *   duration: 120,
+ *   video_url: "https://...",
+ *   user_name: "John Doe"
+ * });
+ */
+export async function addFavorite(
+  userId: string,
+  videoData: {
+    video_id: number;
+    image: string;
+    duration: number;
+    video_url: string;
+    user_name: string;
+  }
+) {
+  const token = localStorage.getItem("token");
+
+  const response = await fetch(`${API_URL}/favorites/${userId}`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(videoData),
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.message || "Error al agregar favorito");
+  }
+
+  return data;
+}
+
+/**
+ * Remove a video from user's favorites
+ * @param {string} userId - User ID
+ * @param {number} videoId - Pexels video ID to remove
+ * @returns {Promise<any>} API response confirming deletion
+ * @example
+ * await removeFavorite("user123", 1);
+ */
+export async function removeFavorite(userId: string, videoId: number) {
+  const token = localStorage.getItem("token");
+
+  const response = await fetch(`${API_URL}/favorites/${userId}/${videoId}`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (!response.ok) {
+    const data = await response.json();
+    throw new Error(data.message || "Error al eliminar favorito");
+  }
+
+  return await response.json();
+}

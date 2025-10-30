@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Heart, Trash2 } from "lucide-react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import { getFavorites, removeFavorite } from "../services/api";
 
 // Interface for video file metadata
 interface VideoFile {
@@ -12,7 +13,16 @@ interface VideoFile {
   link: string;
 }
 
-// Main video object interface
+// Interface for favorite from API
+interface FavoriteFromAPI {
+  video_id: number;
+  image: string;
+  duration: number;
+  video_url: string;
+  user_name: string;
+}
+
+// Main video object interface (adapted for display)
 interface Video {
   id: number;
   image: string;
@@ -29,13 +39,55 @@ export default function Favorites() {
   const navigate = useNavigate();
   const [favorites, setFavorites] = useState<Video[]>([]);
   const [selectedVideo, setSelectedVideo] = useState<Video | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string>("");
 
-  // Load favorites from localStorage on component mount
+  /**
+   * Load favorites from API on component mount
+   * Transforms API data to match Video interface
+   */
   useEffect(() => {
-    const savedVideos = localStorage.getItem("favoriteVideos");
-    if (savedVideos) {
-      setFavorites(JSON.parse(savedVideos));
-    }
+    const loadFavorites = async () => {
+      try {
+        const userId = localStorage.getItem("userId");
+        if (!userId) {
+          setError("Debes iniciar sesión para ver tus favoritos");
+          setIsLoading(false);
+          return;
+        }
+
+        const favoritesData: FavoriteFromAPI[] = await getFavorites(userId);
+        
+        // Transform API data to Video format
+        const transformedVideos: Video[] = favoritesData.map(fav => ({
+          id: fav.video_id,
+          image: fav.image,
+          duration: fav.duration,
+          video_files: [
+            {
+              id: fav.video_id,
+              quality: "hd",
+              file_type: "video/mp4",
+              link: fav.video_url,
+            }
+          ],
+          user: {
+            id: 0,
+            name: fav.user_name,
+            url: "",
+          }
+        }));
+
+        setFavorites(transformedVideos);
+      } catch (error: any) {
+        console.error("Error al cargar favoritos:", error);
+        setError(error.message || "Error al cargar favoritos");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadFavorites();
   }, []);
 
   // Get the best quality video file available (prioritize HD)
@@ -54,29 +106,61 @@ export default function Favorites() {
     setSelectedVideo(null);
   };
 
-  // Remove a single video from favorites
-  const removeFavorite = (videoId: number, e?: React.MouseEvent) => {
+  /**
+   * Remove a single video from favorites
+   * Calls API and updates local state
+   */
+  const handleRemoveFavorite = async (videoId: number, e?: React.MouseEvent) => {
     if (e) e.stopPropagation(); // Prevent modal from opening when clicking delete
     
-    // Filter out the removed video
-    const updatedFavorites = favorites.filter(v => v.id !== videoId);
-    setFavorites(updatedFavorites);
-    
-    // Update localStorage with new favorites list
-    localStorage.setItem("favoriteVideos", JSON.stringify(updatedFavorites));
-    
-    // Also update the favorites IDs array
-    const savedFavoriteIds = JSON.parse(localStorage.getItem("favorites") || "[]");
-    const updatedIds = savedFavoriteIds.filter((id: number) => id !== videoId);
-    localStorage.setItem("favorites", JSON.stringify(updatedIds));
+    try {
+      const userId = localStorage.getItem("userId");
+      if (!userId) {
+        alert("Debes iniciar sesión");
+        return;
+      }
+
+      // Call API to remove favorite
+      await removeFavorite(userId, videoId);
+      
+      // Update local state to reflect the change
+      setFavorites(prev => prev.filter(v => v.id !== videoId));
+      
+    } catch (error: any) {
+      console.error("Error al eliminar favorito:", error);
+      alert(error.message || "Error al eliminar favorito");
+    }
   };
 
-  // Clear all favorites with confirmation
-  const clearAllFavorites = () => {
-    if (confirm("¿Estás seguro de que quieres eliminar todos tus favoritos?")) {
+  /**
+   * Clear all favorites with confirmation
+   * Removes each favorite through API calls
+   */
+  const clearAllFavorites = async () => {
+    if (!confirm("¿Estás seguro de que quieres eliminar todos tus favoritos?")) {
+      return;
+    }
+
+    try {
+      const userId = localStorage.getItem("userId");
+      if (!userId) {
+        alert("Debes iniciar sesión");
+        return;
+      }
+
+      // Remove all favorites sequentially
+      const deletePromises = favorites.map(video => 
+        removeFavorite(userId, video.id)
+      );
+      
+      await Promise.all(deletePromises);
+      
+      // Clear local state
       setFavorites([]);
-      localStorage.removeItem("favoriteVideos");
-      localStorage.removeItem("favorites");
+      
+    } catch (error: any) {
+      console.error("Error al limpiar favoritos:", error);
+      alert(error.message || "Error al limpiar favoritos");
     }
   };
 
@@ -85,7 +169,7 @@ export default function Favorites() {
       <Navbar />
       
       <main className="flex-1 px-8 py-8">
-        {/* Header Section - Improved layout for mobile */}
+        {/* Header Section */}
         <div className="mb-8">
           {/* Title row with back button and title */}
           <div className="flex items-center gap-3 sm:gap-4 mb-3">
@@ -102,7 +186,7 @@ export default function Favorites() {
             </h1>
           </div>
           
-          {/* Counter and clear button row - aligned with content */}
+          {/* Counter and clear button row */}
           <div className="flex items-center justify-between pl-14 sm:pl-16">
             <p className="text-gray-400 text-sm">
               {favorites.length} {favorites.length === 1 ? "película" : "películas"} guardada{favorites.length !== 1 ? "s" : ""}
@@ -115,7 +199,6 @@ export default function Favorites() {
                 className="flex items-center justify-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-lg transition-colors"
               >
                 <Trash2 size={16} />
-                {/* Responsive text: "Limpiar" on mobile, "Limpiar todo" on desktop */}
                 <span className="hidden sm:inline">Limpiar todo</span>
                 <span className="sm:hidden">Limpiar</span>
               </button>
@@ -123,9 +206,33 @@ export default function Favorites() {
           </div>
         </div>
 
-        {/* Favorites List or Empty State */}
-        {favorites.length === 0 ? (
-          // Empty state - shown when no favorites exist
+        {/* Loading State */}
+        {isLoading && (
+          <div className="flex flex-col items-center justify-center py-20">
+            <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-red-500 mb-4"></div>
+            <p className="text-gray-400">Cargando favoritos...</p>
+          </div>
+        )}
+
+        {/* Error State */}
+        {error && !isLoading && (
+          <div className="flex flex-col items-center justify-center py-20 text-center">
+            <div className="text-red-500 mb-4 text-5xl">⚠️</div>
+            <h2 className="text-2xl font-semibold text-gray-400 mb-2">
+              Error al cargar favoritos
+            </h2>
+            <p className="text-gray-500 mb-6">{error}</p>
+            <button
+              onClick={() => window.location.reload()}
+              className="px-6 py-3 bg-red-600 hover:bg-red-700 rounded-lg font-semibold transition"
+            >
+              Reintentar
+            </button>
+          </div>
+        )}
+
+        {/* Empty State */}
+        {!isLoading && !error && favorites.length === 0 && (
           <div className="flex flex-col items-center justify-center py-20 text-center">
             <Heart size={80} className="text-gray-700 mb-4" />
             <h2 className="text-2xl font-semibold text-gray-400 mb-2">
@@ -141,8 +248,10 @@ export default function Favorites() {
               Explorar películas
             </button>
           </div>
-        ) : (
-          // Grid of favorite videos - responsive columns
+        )}
+
+        {/* Favorites Grid */}
+        {!isLoading && !error && favorites.length > 0 && (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
             {favorites.map((video) => (
               <div
@@ -159,26 +268,30 @@ export default function Favorites() {
                   className="w-full h-full object-cover transition-transform group-hover:scale-110"
                   src={getBestVideoQuality(video.video_files)}
                   onMouseEnter={(e) => {
-                    e.currentTarget.play().catch(() => {}); // Play on hover (desktop)
+                    e.currentTarget.play().catch(() => {});
                   }}
                   onMouseLeave={(e) => {
                     e.currentTarget.pause();
-                    e.currentTarget.currentTime = 0; // Reset to beginning
+                    e.currentTarget.currentTime = 0;
                   }}
                 />
 
-                {/* Duration badge - bottom right corner */}
+                {/* Duration badge */}
                 <div className="absolute bottom-2 right-2 bg-black bg-opacity-70 px-2 py-1 rounded text-xs text-white">
                   {video.duration}s
                 </div>
 
-                {/* Remove button - top right corner */}
+                {/* Remove button with tooltip */}
                 <button
-                  onClick={(e) => removeFavorite(video.id, e)}
-                  className="absolute top-2 right-2 p-2 bg-red-600 bg-opacity-90 hover:bg-opacity-100 rounded-full transition-all z-10"
+                  onClick={(e) => handleRemoveFavorite(video.id, e)}
+                  className="absolute top-2 right-2 p-2 bg-red-600 bg-opacity-90 hover:bg-opacity-100 rounded-full transition-all z-10 group"
                   aria-label="Eliminar de favoritos"
                 >
                   <Trash2 size={16} className="text-white" />
+                  {/* Tooltip */}
+                  <span className="absolute right-10 top-1/2 -translate-y-1/2 bg-black text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+                    Eliminar
+                  </span>
                 </button>
               </div>
             ))}
@@ -188,23 +301,26 @@ export default function Favorites() {
 
       <Footer />
 
-      {/* Video Player Modal - fullscreen overlay */}
+      {/* Video Player Modal */}
       {selectedVideo && (
         <div 
           className="fixed inset-0 bg-black bg-opacity-95 z-50 flex items-center justify-center p-8"
-          onClick={closeModal} // Close when clicking backdrop
+          onClick={closeModal}
         >
           <div 
             className="relative w-full max-w-4xl max-h-[85vh] flex flex-col"
-            onClick={(e) => e.stopPropagation()} // Prevent closing when clicking video
+            onClick={(e) => e.stopPropagation()}
           >
-            {/* Close button - top right */}
+            {/* Close button with tooltip */}
             <button
               onClick={closeModal}
-              className="absolute -top-10 right-0 text-white text-3xl hover:text-gray-300 transition-colors z-10"
+              className="absolute -top-10 right-0 text-white text-3xl hover:text-gray-300 transition-colors z-10 group"
               aria-label="Cerrar"
             >
               ✕
+              <span className="absolute right-8 top-1/2 -translate-y-1/2 bg-black text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+                Cerrar video
+              </span>
             </button>
 
             {/* Video player */}
@@ -231,7 +347,7 @@ export default function Favorites() {
               {/* Delete button in modal */}
               <button
                 onClick={() => {
-                  removeFavorite(selectedVideo.id);
+                  handleRemoveFavorite(selectedVideo.id);
                   closeModal();
                 }}
                 className="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg transition"
