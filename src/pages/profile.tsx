@@ -15,7 +15,7 @@ import { getUserProfile, updateUserProfile, deleteUserAccount } from "../service
 /**
  * Profile Component
  * Displays and manages user profile information
- * @returns {JSX.Element} User profile page
+ * Accessible version (WCAG 2.1 – 3.3.1 Error Identification)
  */
 export default function Profile() {
   const [loading, setLoading] = useState(true);
@@ -46,19 +46,14 @@ export default function Profile() {
   // Error message for password section
   const [passwordError, setPasswordError] = useState("");
 
-  /**
-   * Validates password strength requirements
-   * Must contain at least 8 characters, 1 uppercase letter, and 1 special character
-   * @param {string} password - Password to validate
-   * @returns {boolean} True if password meets all requirements
-   */
+  /** Validates password strength */
   const validarContrasena = (password: string): boolean => {
     const regex =
       /^(?=.*[A-Z])(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/;
     return regex.test(password);
   };
 
-  /** Load user profile on mount */
+  /** Load user profile */
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -83,11 +78,11 @@ export default function Profile() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  /** Handle password field changes */
+  /** Handle password changes */
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setPasswordData((prev) => ({ ...prev, [name]: value }));
-    setPasswordError(""); // reset error on change
+    setPasswordError("");
   };
 
   /** Toggle password visibility */
@@ -103,34 +98,27 @@ export default function Profile() {
 
       const { newPassword, confirmPassword } = passwordData;
 
-      // ✅ Validate if user entered new password
       if (newPassword || confirmPassword) {
-        // Check match
         if (newPassword !== confirmPassword) {
           setPasswordError("Las contraseñas no coinciden.");
           return;
         }
-
-        // Check strength
         if (!validarContrasena(newPassword)) {
           setPasswordError(
-            " La contraseña debe tener al menos 8 caracteres, una mayúscula y un carácter especial."
+            "La contraseña debe tener al menos 8 caracteres, una mayúscula y un carácter especial."
           );
           return;
         }
       }
 
-      // Combine updates
       const updatedInfo = {
-      username: formData.username,
-      email: formData.email,
-      birthdate: formData.birthdate,
-      ...(newPassword && { password: newPassword }), 
-};
+        username: formData.username,
+        email: formData.email,
+        birthdate: formData.birthdate,
+        ...(newPassword && { password: newPassword }),
+      };
 
-      // Send to API
       const updated = await updateUserProfile(userId, updatedInfo);
-
       setUserData(updated);
       setPasswordData({ newPassword: "", confirmPassword: "" });
       setPasswordError("");
@@ -141,7 +129,7 @@ export default function Profile() {
     }
   };
 
-  /** Delete account handler */
+  /** Delete account */
   const handleDelete = async () => {
     if (
       !confirm(
@@ -177,12 +165,16 @@ export default function Profile() {
     <div className="bg-[#141414] min-h-screen text-white flex flex-col">
       <Navbar />
       <div className="flex justify-center items-center flex-1 px-4 py-10">
-        <div className="relative w-full max-w-md bg-black/80 rounded-2xl shadow-2xl p-8 border border-gray-800">
+        <div
+          className="relative w-full max-w-md bg-black/80 rounded-2xl shadow-2xl p-8 border border-gray-800"
+          role="form"
+          aria-label="Formulario de perfil de usuario"
+        >
           {/* Back button */}
           <button
             onClick={() => navigate("/home")}
             className="flex items-center gap-2 text-gray-400 hover:text-red-500 transition mb-6 font-medium"
-            aria-label="Go back"
+            aria-label="Volver al inicio"
           >
             <ArrowLeft size={20} />
             <span>Volver</span>
@@ -211,14 +203,16 @@ export default function Profile() {
               <div className="flex items-center gap-3">
                 <UserIcon size={20} className="text-gray-400" />
                 <div className="flex-1">
-                  <span className="text-xs text-gray-500 block">
+                  <label htmlFor="username" className="text-xs text-gray-500 block">
                     Nombre de usuario
-                  </span>
+                  </label>
                   <input
+                    id="username"
                     type="text"
                     name="username"
                     value={formData.username}
                     onChange={handleChange}
+                    aria-required="true"
                     className="w-full bg-transparent text-white font-medium focus:outline-none border-b border-gray-600 focus:border-red-500 py-1"
                   />
                 </div>
@@ -230,14 +224,16 @@ export default function Profile() {
               <div className="flex items-center gap-3">
                 <Mail size={20} className="text-gray-400" />
                 <div className="flex-1">
-                  <span className="text-xs text-gray-500 block">
+                  <label htmlFor="email" className="text-xs text-gray-500 block">
                     Correo electrónico
-                  </span>
+                  </label>
                   <input
+                    id="email"
                     type="email"
                     name="email"
                     value={formData.email}
                     onChange={handleChange}
+                    aria-required="true"
                     className="w-full bg-transparent text-white font-medium focus:outline-none border-b border-gray-600 focus:border-red-500 py-1"
                   />
                 </div>
@@ -249,10 +245,11 @@ export default function Profile() {
               <div className="flex items-center gap-3">
                 <Calendar size={20} className="text-gray-400" />
                 <div className="flex-1">
-                  <span className="text-xs text-gray-500 block">
+                  <label htmlFor="birthdate" className="text-xs text-gray-500 block">
                     Fecha de nacimiento
-                  </span>
+                  </label>
                   <input
+                    id="birthdate"
                     type="date"
                     name="birthdate"
                     value={
@@ -261,6 +258,7 @@ export default function Profile() {
                         : ""
                     }
                     onChange={handleChange}
+                    aria-required="true"
                     className="w-full bg-transparent text-white font-medium focus:outline-none border-b border-gray-600 focus:border-red-500 py-1 [&::-webkit-calendar-picker-indicator]:invert [&::-webkit-calendar-picker-indicator]:opacity-100"
                   />
                 </div>
@@ -273,73 +271,96 @@ export default function Profile() {
                 Actualizar contraseña
               </h3>
 
-              {/* New password */}
+              {/* Nueva contraseña */}
               <div className="bg-[#1c1c1c] rounded-xl p-4 mb-3 border border-gray-700">
                 <div className="flex items-center gap-3">
                   <Lock size={20} className="text-gray-400" />
                   <div className="flex-1">
-                    <span className="text-xs text-gray-500 block">
+                    <label
+                      htmlFor="newPassword"
+                      className="text-xs text-gray-500 block"
+                    >
                       Nueva contraseña
-                    </span>
+                    </label>
                     <div className="flex items-center gap-2">
                       <input
+                        id="newPassword"
                         type={showPasswords.new ? "text" : "password"}
                         name="newPassword"
                         value={passwordData.newPassword}
                         onChange={handlePasswordChange}
+                        aria-label="Nueva contraseña"
+                        aria-required="false"
+                        aria-invalid={passwordError ? "true" : "false"}
+                        aria-describedby={passwordError ? "passwordError" : undefined}
                         className="w-full bg-transparent text-white font-medium focus:outline-none border-b border-gray-600 focus:border-red-500 py-1"
                       />
                       <button
                         type="button"
                         onClick={() => togglePasswordVisibility("new")}
+                        aria-label={
+                          showPasswords.new
+                            ? "Ocultar contraseña"
+                            : "Mostrar contraseña"
+                        }
                         className="text-gray-400 hover:text-white transition"
                       >
-                        {showPasswords.new ? (
-                          <EyeOff size={18} />
-                        ) : (
-                          <Eye size={18} />
-                        )}
+                        {showPasswords.new ? <EyeOff size={18} /> : <Eye size={18} />}
                       </button>
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* Confirm password */}
+              {/* Confirmar contraseña */}
               <div className="bg-[#1c1c1c] rounded-xl p-4 mb-3 border border-gray-700">
                 <div className="flex items-center gap-3">
                   <Lock size={20} className="text-gray-400" />
                   <div className="flex-1">
-                    <span className="text-xs text-gray-500 block">
+                    <label
+                      htmlFor="confirmPassword"
+                      className="text-xs text-gray-500 block"
+                    >
                       Confirmar nueva contraseña
-                    </span>
+                    </label>
                     <div className="flex items-center gap-2">
                       <input
+                        id="confirmPassword"
                         type={showPasswords.confirm ? "text" : "password"}
                         name="confirmPassword"
                         value={passwordData.confirmPassword}
                         onChange={handlePasswordChange}
+                        aria-label="Confirmar nueva contraseña"
+                        aria-required="false"
+                        aria-invalid={passwordError ? "true" : "false"}
+                        aria-describedby={passwordError ? "passwordError" : undefined}
                         className="w-full bg-transparent text-white font-medium focus:outline-none border-b border-gray-600 focus:border-red-500 py-1"
                       />
                       <button
                         type="button"
                         onClick={() => togglePasswordVisibility("confirm")}
+                        aria-label={
+                          showPasswords.confirm
+                            ? "Ocultar contraseña"
+                            : "Mostrar contraseña"
+                        }
                         className="text-gray-400 hover:text-white transition"
                       >
-                        {showPasswords.confirm ? (
-                          <EyeOff size={18} />
-                        ) : (
-                          <Eye size={18} />
-                        )}
+                        {showPasswords.confirm ? <EyeOff size={18} /> : <Eye size={18} />}
                       </button>
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* Password error message */}
+              {/* Mensaje de error accesible */}
               {passwordError && (
-                <p className="text-red-500 text-sm mt-2 text-center font-medium">
+                <p
+                  id="passwordError"
+                  role="alert"
+                  aria-live="assertive"
+                  className="text-red-500 text-sm mt-2 text-center font-medium"
+                >
                   {passwordError}
                 </p>
               )}

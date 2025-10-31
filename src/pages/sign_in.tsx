@@ -3,200 +3,197 @@ import { Link, useNavigate } from "react-router-dom";
 import { loginUsuario } from "../services/api";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 
-/**
- * SignIn Component
- * User authentication form with email and password validation
- * Includes password visibility toggle and terms acceptance
- * @returns {JSX.Element} Sign in form
- */
 const SignIn: React.FC = () => {
-  // Hook for programmatic navigation after successful login
   const navigate = useNavigate();
-  
-  // Form state management
+
   const [usuario, setUsuario] = useState("");
   const [contrasena, setContrasena] = useState("");
   const [mostrarContrasena, setMostrarContrasena] = useState(false);
-  const [errores, setErrores] = useState<string[]>([]);
-  const [isLoading, setIsLoading] = useState(false); // Loading state for API request
+  const [errores, setErrores] = useState<{ email?: string; password?: string; general?: string }>({});
+  const [isLoading, setIsLoading] = useState(false);
 
-  /**
-   * Validates email format using regex
-   * @param {string} email - Email address to validate
-   * @returns {boolean} True if email format is valid
-   */
   const validarEmail = (email: string): boolean => {
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return regex.test(email);
   };
 
-  /**
-   * Validates password strength requirements
-   * @param {string} password - Password to validate
-   * @returns {boolean} True if password meets requirements (8+ chars, 1 uppercase, 1 special char)
-   */
   const validarContrasena = (password: string): boolean => {
-    const regex =
-      /^(?=.*[A-Z])(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/;
+    const regex = /^(?=.*[A-Z])(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/;
     return regex.test(password);
   };
 
-  /**
-   * Handles form submission
-   * Validates all fields, authenticates user via API, stores token and redirects to home
-   * @param {React.FormEvent} e - Form submission event
-   */
   const manejarSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const nuevosErrores: string[] = [];
+    const nuevosErrores: typeof errores = {};
 
-    // Validate email field
     if (!usuario) {
-      nuevosErrores.push("El correo electrónico es obligatorio.");
+      nuevosErrores.email = "El correo electrónico es obligatorio.";
     } else if (!validarEmail(usuario)) {
-      nuevosErrores.push("Debes ingresar un correo electrónico válido.");
+      nuevosErrores.email = "Debes ingresar un correo electrónico válido.";
     }
 
-    // Validate password field
     if (!contrasena) {
-      nuevosErrores.push("La contraseña es obligatoria.");
+      nuevosErrores.password = "La contraseña es obligatoria.";
     } else if (!validarContrasena(contrasena)) {
-      nuevosErrores.push(
-        "La contraseña debe tener mínimo 8 caracteres, una mayúscula y un signo."
-      );
+      nuevosErrores.password =
+        "La contraseña debe tener mínimo 8 caracteres, una mayúscula y un signo.";
     }
 
-    // If validation errors exist, display them and stop submission
-    if (nuevosErrores.length > 0) {
+    if (Object.keys(nuevosErrores).length > 0) {
       setErrores(nuevosErrores);
       return;
     }
 
-    // Start loading state
     setIsLoading(true);
-    setErrores([]); // Clear previous errors
+    setErrores({});
 
-    // Attempt authentication via API
     try {
       const data = await loginUsuario(usuario, contrasena);
-
-      // Store authentication token and user ID in localStorage
       localStorage.setItem("token", data.token);
       localStorage.setItem("userId", data.user.id);
-
-      // Show success message and redirect to home page
       alert("Inicio de sesión exitoso");
       navigate("/home");
     } catch (error: any) {
-      // Log error and display authentication failure message
       console.error("Error:", error);
-      setErrores([error.message || "Credenciales inválidas."]);
+      setErrores({
+        general: error.message || "Credenciales inválidas. Intenta nuevamente.",
+      });
     } finally {
-      // Stop loading state regardless of success or failure
       setIsLoading(false);
     }
   };
 
   return (
-    // Full-screen centered container with dark background
     <div className="flex items-center justify-center min-h-screen bg-[#141414]">
-      {/* Form card with semi-transparent black background */}
-      <div className="bg-black/80 p-10 rounded-2xl shadow-lg w-96 text-white">
-        
-        {/* Header section with logo and welcome message */}
+      <div
+        className="bg-black/80 p-10 rounded-2xl shadow-lg w-96 text-white"
+        role="form"
+        aria-labelledby="titulo-login"
+      >
+        {/* Encabezado */}
         <div className="flex flex-col items-center mb-8">
-          {/* Platform logo */}
-          <img src="/Logo.png" alt="Leaderflix logo" className="w-28 h-28 mb-4 mx-auto" />
-          
-          {/* Page title */}
-          <h1 className="text-2xl font-bold text-center mb-2">Inicia sesión</h1>
-          
-          {/* Welcome message */}
+          <img
+            src="/Logo.png"
+            alt="Logo de Leaderflix"
+            className="w-28 h-28 mb-4 mx-auto"
+          />
+          <h1 id="titulo-login" className="text-2xl font-bold text-center mb-2">
+            Inicia sesión
+          </h1>
           <p className="text-gray-400 text-sm text-center">
             Bienvenido de nuevo a Leaderflix
           </p>
         </div>
 
-        {/* Sign in form */}
-        <form onSubmit={manejarSubmit} className="flex flex-col space-y-5">
-          
-          {/* Email input field */}
+        {/* Formulario */}
+        <form onSubmit={manejarSubmit} noValidate aria-describedby="errores-generales" className="flex flex-col space-y-5">
+
+          {/* Campo: Correo electrónico */}
           <div>
-            <label className="block text-sm mb-1 text-gray-300">
-              Correo Electrónico
+            <label htmlFor="email" className="block text-sm mb-1 text-gray-300">
+              Correo electrónico
             </label>
             <input
+              id="email"
+              name="email"
               type="email"
               value={usuario}
               onChange={(e) => setUsuario(e.target.value)}
-              disabled={isLoading} // Disable input while loading
-              className="w-full p-2 rounded bg-[#1c1c1c] border border-gray-700 focus:outline-none focus:border-red-600 disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={isLoading}
+              aria-required="true"
+              aria-invalid={!!errores.email}
+              aria-describedby={errores.email ? "error-email" : undefined}
+              className={`w-full p-2 rounded bg-[#1c1c1c] border ${
+                errores.email ? "border-red-500" : "border-gray-700"
+              } focus:outline-none focus:border-red-600 disabled:opacity-50 disabled:cursor-not-allowed`}
               placeholder="tu@email.com"
             />
+            {errores.email && (
+              <p
+                id="error-email"
+                className="text-red-400 text-xs mt-1"
+                role="alert"
+                aria-live="assertive"
+              >
+                {errores.email}
+              </p>
+            )}
           </div>
 
-          {/* Password field with show/hide toggle button */}
+          {/* Campo: Contraseña */}
           <div>
-            <label className="block text-sm mb-1 text-gray-300">Contraseña</label>
+            <label htmlFor="password" className="block text-sm mb-1 text-gray-300">
+              Contraseña
+            </label>
             <div className="relative">
-              {/* Password input with dynamic type based on visibility state */}
               <input
+                id="password"
+                name="password"
                 type={mostrarContrasena ? "text" : "password"}
                 value={contrasena}
                 onChange={(e) => setContrasena(e.target.value)}
-                disabled={isLoading} // Disable input while loading
-                className="w-full p-2 rounded bg-[#1c1c1c] border border-gray-700 focus:outline-none focus:border-red-600 pr-10 disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={isLoading}
+                aria-required="true"
+                aria-invalid={!!errores.password}
+                aria-describedby={errores.password ? "error-password" : undefined}
+                className={`w-full p-2 rounded bg-[#1c1c1c] border ${
+                  errores.password ? "border-red-500" : "border-gray-700"
+                } focus:outline-none focus:border-red-600 pr-10 disabled:opacity-50 disabled:cursor-not-allowed`}
                 placeholder="Ingresa tu contraseña"
               />
-              {/* Toggle visibility button positioned absolutely in input */}
               <button
                 type="button"
                 onClick={() => setMostrarContrasena(!mostrarContrasena)}
-                disabled={isLoading} // Disable button while loading
+                disabled={isLoading}
                 className="absolute right-3 top-2.5 text-gray-400 hover:text-gray-200 transition disabled:opacity-50 disabled:cursor-not-allowed"
-                aria-label={
-                  mostrarContrasena ? "Ocultar contraseña" : "Mostrar contraseña"
-                }
+                aria-label={mostrarContrasena ? "Ocultar contraseña" : "Mostrar contraseña"}
               >
-                {/* Eye/EyeOff icon from lucide-react */}
                 {mostrarContrasena ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
             </div>
+            {errores.password && (
+              <p
+                id="error-password"
+                className="text-red-400 text-xs mt-1"
+                role="alert"
+                aria-live="assertive"
+              >
+                {errores.password}
+              </p>
+            )}
           </div>
 
-          {/* Forgot password link */}
+          {/* Enlace recuperar contraseña */}
           <div className="flex justify-center text-xs text-gray-400">
             <Link to="/forgot_password" className="hover:text-red-500">
               ¿Olvidaste tu contraseña?
             </Link>
           </div>
 
-          {/* Error messages container - displayed when validation fails */}
-          {errores.length > 0 && (
-            <div className="bg-red-900/30 border border-red-600 rounded p-3 space-y-1">
-              {/* Error list with bullet points */}
-              {errores.map((error, index) => (
-                <div key={index} className="text-red-400 text-xs flex items-start">
-                  <span className="mr-2">•</span>
-                  <span>{error}</span>
-                </div>
-              ))}
+          {/* Error general (API, credenciales, etc.) */}
+          {errores.general && (
+            <div
+              id="errores-generales"
+              role="alert"
+              aria-live="assertive"
+              className="bg-red-900/30 border border-red-600 rounded p-3"
+            >
+              <p className="text-red-400 text-xs">{errores.general}</p>
             </div>
           )}
 
-          {/* Submit button with loading state */}
+          {/* Botón de envío */}
           <button
             type="submit"
-            disabled={isLoading} // Disable button while loading
+            disabled={isLoading}
             className="bg-red-600 hover:bg-red-700 p-2 rounded font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
-            {/* Show spinner icon when loading */}
             {isLoading && <Loader2 size={18} className="animate-spin" />}
-            {isLoading ? "Iniciando sesión..." : "Iniciar Sesión"}
+            {isLoading ? "Iniciando sesión..." : "Iniciar sesión"}
           </button>
 
-          {/* Sign up link for new users */}
+          {/* Registro */}
           <p className="text-center text-xs text-gray-400 mt-3">
             ¿No tienes cuenta?{" "}
             <Link to="/sign_up" className="text-red-500 hover:underline">
