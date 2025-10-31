@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Film, Keyboard } from "lucide-react";
+import { Film, Keyboard, BookOpen, Compass, UserCircle } from "lucide-react";
 
 /**
  * Footer component with brand info, navigation, account links,
- * and a professional modal for accessibility & keyboard shortcuts.
+ * user manual (PDF), and accessibility modal.
  */
 export default function Footer() {
   // Controls modal visibility
@@ -31,7 +31,7 @@ export default function Footer() {
       <div className="max-w-6xl mx-auto px-6">
 
         {/* === Main footer grid === */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-8 mb-8">
 
           {/* --- Brand info --- */}
           <div>
@@ -46,7 +46,10 @@ export default function Footer() {
 
           {/* --- Navigation links --- */}
           <div>
-            <h4 className="text-white font-semibold mb-3 text-sm">Navegación</h4>
+            <div className="flex items-center gap-2 mb-3">
+              <Compass className="text-red-600" size={20} />
+              <h4 className="text-white font-semibold text-sm">Navegación</h4>
+            </div>
             <ul className="space-y-2 text-sm">
               <li><Link to="/" className="hover:text-red-500 transition">Inicio</Link></li>
               <li><Link to="/home" className="hover:text-red-500 transition">Películas</Link></li>
@@ -57,12 +60,36 @@ export default function Footer() {
 
           {/* --- Account links --- */}
           <div>
-            <h4 className="text-white font-semibold mb-3 text-sm">Cuenta</h4>
+            <div className="flex items-center gap-2 mb-3">
+              <UserCircle className="text-red-600" size={20} />
+              <h4 className="text-white font-semibold text-sm">Cuenta</h4>
+            </div>
             <ul className="space-y-2 text-sm">
               <li><Link to="/sign_in" className="hover:text-red-500 transition">Iniciar sesión</Link></li>
               <li><Link to="/sign_up" className="hover:text-red-500 transition">Registrarse</Link></li>
               <li><Link to="/profile" className="hover:text-red-500 transition">Mi perfil</Link></li>
               <li><Link to="/forgot-password" className="hover:text-red-500 transition">Recuperar contraseña</Link></li>
+            </ul>
+          </div>
+
+          {/* --- Help & Documentation --- */}
+          <div>
+            <div className="flex items-center gap-2 mb-3">
+              <BookOpen className="text-red-600" size={20} />
+              <h4 className="text-white font-semibold text-sm">Ayuda</h4>
+            </div>
+            <ul className="space-y-2 text-sm">
+              <li>
+                <a 
+                  href="/docs/manual-de-usuario.pdf" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="hover:text-red-500 transition flex items-center gap-2"
+                  title="Descargar Manual de Usuario (PDF)"
+                >
+                  Manual de Usuario
+                </a>
+              </li>
             </ul>
           </div>
 
@@ -84,6 +111,7 @@ export default function Footer() {
         {/* --- Footer bottom --- */}
         <div className="text-center text-gray-600 text-xs pt-6 border-t border-gray-800">
           <p>© {new Date().getFullYear()} Leaderflix. Proyecto académico sin fines comerciales.</p>
+          <p className="mt-1">Universidad del Valle - Sede Yumbo | Proyecto Integrador 1</p>
         </div>
       </div>
 
