@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 
 export default function Navbar() {
   const navigate = useNavigate();
-  const location = useLocation(); // 👈 Para detectar la ruta actual
+  const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [shortcutsEnabled, setShortcutsEnabled] = useState(() => {
@@ -23,7 +23,6 @@ export default function Navbar() {
       "/sign_up": "Leaderflix | Crear cuenta",
     };
 
-    // Busca el título correspondiente o usa uno por defecto
     document.title = titles[location.pathname] || "Leaderflix | Plataforma de entretenimiento";
   }, [location.pathname]);
 
@@ -118,45 +117,71 @@ export default function Navbar() {
           />
         </form>
 
-        {/* Íconos (desktop) */}
+        {/* Íconos (desktop) con tooltips */}
         <div className="hidden md:flex items-center gap-3" role="menubar">
-          <Link to="/favorites" aria-label="Ir a favoritas">
-            <button className="flex items-center gap-2 text-gray-300 hover:text-white transition cursor-pointer">
-              <Heart size={18} />
-              <span className="hidden lg:inline">Favoritas</span>
-            </button>
-          </Link>
+          {/* Favoritas con tooltip */}
+          <div className="relative group">
+            <Link to="/favorites" aria-label="Ir a favoritas">
+              <button className="flex items-center gap-2 text-gray-300 hover:text-white transition cursor-pointer">
+                <Heart size={18} />
+                <span className="hidden lg:inline">Favoritas</span>
+              </button>
+            </Link>
+            {/* Tooltip */}
+            <span className="absolute top-full mt-2 left-1/2 -translate-x-1/2 bg-[#E8E8E8] text-gray-800 text-sm px-3 py-1 rounded-md shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap z-50">
+              Mis Favoritas
+            </span>
+          </div>
 
-          <Link to="/profile" aria-label="Ir al perfil de usuario">
+          {/* Perfil con tooltip */}
+          <div className="relative group">
+            <Link to="/profile" aria-label="Ir al perfil de usuario">
+              <button className="p-2 bg-gray-700 rounded-full hover:bg-gray-600 transition cursor-pointer">
+                <User size={18} />
+              </button>
+            </Link>
+            {/* Tooltip */}
+            <span className="absolute top-full mt-2 left-1/2 -translate-x-1/2 bg-[#E8E8E8] text-gray-800 text-sm px-3 py-1 rounded-md shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap z-50">
+              Mi Perfil
+            </span>
+          </div>
+
+          {/* Atajos de teclado con tooltip */}
+          <div className="relative group">
             <button
-              className="p-2 bg-gray-700 rounded-full hover:bg-gray-600 transition cursor-pointer"
+              onClick={toggleShortcuts}
+              className={`p-2 rounded-full transition cursor-pointer ${
+                shortcutsEnabled
+                  ? "bg-green-600 hover:bg-green-700"
+                  : "bg-gray-700 hover:bg-gray-600"
+              }`}
+              aria-pressed={shortcutsEnabled}
+              aria-label={
+                shortcutsEnabled ? "Desactivar atajos de teclado" : "Activar atajos de teclado"
+              }
             >
-              <User size={18} />
+              <Keyboard size={18} />
             </button>
-          </Link>
+            {/* Tooltip */}
+            <span className="absolute top-full mt-2 left-1/2 -translate-x-1/2 bg-[#E8E8E8] text-gray-800 text-sm px-3 py-1 rounded-md shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap z-50">
+              {shortcutsEnabled ? "Desactivar atajos" : "Activar atajos"}
+            </span>
+          </div>
 
-          <button
-            onClick={toggleShortcuts}
-            className={`p-2 rounded-full transition cursor-pointer ${
-              shortcutsEnabled
-                ? "bg-green-600 hover:bg-green-700"
-                : "bg-gray-700 hover:bg-gray-600"
-            }`}
-            aria-pressed={shortcutsEnabled}
-            aria-label={
-              shortcutsEnabled ? "Desactivar atajos de teclado" : "Activar atajos de teclado"
-            }
-          >
-            <Keyboard size={18} />
-          </button>
-
-          <button
-            onClick={handleLogout}
-            className="p-2 bg-red-600 hover:bg-red-700 rounded-full transition cursor-pointer"
-            aria-label="Cerrar sesión"
-          >
-            <LogOut size={18} />
-          </button>
+          {/* Cerrar sesión con tooltip */}
+          <div className="relative group">
+            <button
+              onClick={handleLogout}
+              className="p-2 bg-red-600 hover:bg-red-700 rounded-full transition cursor-pointer"
+              aria-label="Cerrar sesión"
+            >
+              <LogOut size={18} />
+            </button>
+            {/* Tooltip */}
+            <span className="absolute top-full mt-2 left-1/2 -translate-x-1/2 bg-[#E8E8E8] text-gray-800 text-sm px-3 py-1 rounded-md shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap z-50">
+              Cerrar sesión
+            </span>
+          </div>
         </div>
 
         {/* Menú móvil */}
