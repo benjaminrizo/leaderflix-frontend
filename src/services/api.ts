@@ -334,7 +334,9 @@ export async function addComment(commentData: {
  * @param {string} commentText - New comment text
  * @returns {Promise<any>} Updated comment
  */
-export async function updateComment(commentId: number, commentText: string) {
+
+
+export async function updateComment(commentId: string, commentText: string) {
   const token = localStorage.getItem("token");
 
   const response = await fetch(`${API_URL}/comments/${commentId}`, {
@@ -360,7 +362,7 @@ export async function updateComment(commentId: number, commentText: string) {
  * @param {number} commentId - Comment ID
  * @returns {Promise<any>} Deletion confirmation
  */
-export async function deleteComment(commentId: number) {
+export async function deleteComment(commentId: string) {
   const token = localStorage.getItem("token");
 
   const response = await fetch(`${API_URL}/comments/${commentId}`, {

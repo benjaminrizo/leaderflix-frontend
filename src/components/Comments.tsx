@@ -9,10 +9,10 @@ import {
 } from "../services/api";
 
 interface Comment {
-  id: number;
+  _id: string;
   video_id: number;
   user_id: string;
-  username: string;
+  username?: string;
   comment_text: string;
   created_at: string;
 }
@@ -24,7 +24,7 @@ interface CommentsProps {
 export default function Comments({ videoId }: CommentsProps) {
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState("");
-  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [editText, setEditText] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
@@ -87,7 +87,7 @@ export default function Comments({ videoId }: CommentsProps) {
 
   // Iniciar edición
   const startEditing = (comment: Comment) => {
-    setEditingId(comment.id);
+    setEditingId(comment._id);
     setEditText(comment.comment_text);
     setError("");
   };
@@ -100,7 +100,7 @@ export default function Comments({ videoId }: CommentsProps) {
   };
 
   // Guardar edición
-  const handleUpdateComment = async (commentId: number) => {
+  const handleUpdateComment = async (commentId: string) => {
     if (!editText.trim()) {
       setError("El comentario no puede estar vacío");
       return;
@@ -119,7 +119,7 @@ export default function Comments({ videoId }: CommentsProps) {
   };
 
   // Eliminar comentario
-  const handleDeleteComment = async (commentId: number) => {
+  const handleDeleteComment = async (commentId: string) => {
     if (!confirm("¿Estás seguro de eliminar este comentario?")) {
       return;
     }
@@ -217,7 +217,7 @@ export default function Comments({ videoId }: CommentsProps) {
         <div className="space-y-4 max-h-96 overflow-y-auto">
           {comments.map((comment) => (
             <div
-              key={comment.id}
+              key={comment._id}
               className="bg-gray-800 rounded-lg p-4 border border-gray-700"
             >
               {/* Header del comentario */}
@@ -239,10 +239,10 @@ export default function Comments({ videoId }: CommentsProps) {
                 {/* Botones de acción (solo si es el autor) */}
                 {comment.user_id === currentUserId && (
                   <div className="flex gap-2">
-                    {editingId === comment.id ? (
+                    {editingId === comment._id ? (
                       <>
                         <button
-                          onClick={() => handleUpdateComment(comment.id)}
+                          onClick={() => handleUpdateComment(comment._id)}
                           className="text-green-500 hover:text-green-400 transition p-1"
                           aria-label="Guardar cambios"
                         >
@@ -266,7 +266,7 @@ export default function Comments({ videoId }: CommentsProps) {
                           <Edit2 size={16} />
                         </button>
                         <button
-                          onClick={() => handleDeleteComment(comment.id)}
+                          onClick={() => handleDeleteComment(comment._id)}
                           className="text-red-500 hover:text-red-400 transition p-1"
                           aria-label="Eliminar comentario"
                         >
@@ -279,7 +279,7 @@ export default function Comments({ videoId }: CommentsProps) {
               </div>
 
               {/* Contenido del comentario */}
-              {editingId === comment.id ? (
+              {editingId === comment._id ? (
                 <textarea
                   value={editText}
                   onChange={(e) => setEditText(e.target.value)}
