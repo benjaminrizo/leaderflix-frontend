@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Heart } from "lucide-react";
+import Comments from "./Comments";
 
 interface VideoFile {
   id: number;
@@ -22,8 +23,8 @@ interface Video {
 
 type Props = {
   title: string;
-  favorites: number[]; // Recibe favoritos desde el padre
-  onToggleFavorite: (videoId: number, video: Video) => Promise<void>; // Función del padre para manejar favoritos
+  favorites: number[];
+  onToggleFavorite: (videoId: number, video: Video) => Promise<void>;
 };
 
 export default function MovieSection({ title, favorites, onToggleFavorite }: Props) {
@@ -46,13 +47,14 @@ export default function MovieSection({ title, favorites, onToggleFavorite }: Pro
   useEffect(() => {
     async function fetchVideos() {
       const query = getSearchQuery(title);
-      
-      const endpoint = title === "Más populares" 
-        ? "/videos/popular"
-        : `/videos/search?query=${encodeURIComponent(query)}`;
-      
+
+      const endpoint =
+        title === "Más populares"
+          ? "/videos/popular"
+          : `/videos/search?query=${encodeURIComponent(query)}`;
+
       const url = `${import.meta.env.VITE_API_URL}/api${endpoint}`;
-      
+
       setIsLoading(true);
       setError("");
 
@@ -74,7 +76,7 @@ export default function MovieSection({ title, favorites, onToggleFavorite }: Pro
   }, [title]);
 
   const getBestVideoQuality = (videoFiles: VideoFile[]): string => {
-    const hdVideo = videoFiles.find(file => file.quality === "hd");
+    const hdVideo = videoFiles.find((file) => file.quality === "hd");
     return hdVideo ? hdVideo.link : videoFiles[0]?.link || "";
   };
 
@@ -86,23 +88,28 @@ export default function MovieSection({ title, favorites, onToggleFavorite }: Pro
     setSelectedVideo(null);
   };
 
-  /**
-   * Maneja el toggle de favoritos llamando a la función del padre
-   * Muestra estado de carga mientras se procesa
-   */
+  useEffect(() => {
+    if (selectedVideo) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, [selectedVideo]);
+
   const handleToggleFavorite = async (e: React.MouseEvent, videoId: number, video: Video) => {
     e.stopPropagation();
-    
-    // Evitar múltiples clicks mientras se procesa
+
     if (isTogglingFavorite === videoId) return;
-    
+
     setIsTogglingFavorite(videoId);
-    
+
     try {
       await onToggleFavorite(videoId, video);
     } catch (error) {
       console.error("Error al actualizar favorito:", error);
-      // Aquí podrías mostrar un mensaje de error al usuario
     } finally {
       setIsTogglingFavorite(null);
     }
@@ -114,145 +121,129 @@ export default function MovieSection({ title, favorites, onToggleFavorite }: Pro
 
   return (
     <>
-      <section className="px-8 py-6">
-        <h2 className="text-white text-lg font-semibold mb-4">{title}</h2>
-        
-        {error && (
-          <p className="text-red-500 mb-4">{error}</p>
-        )}
+      <section className="px-4 sm:px-8 py-8">
+        <h2 className="text-white text-xl font-semibold mb-5">{title}</h2>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
-          {isLoading ? (
-            placeholders.map((_, i) => (
-              <div
-                key={i}
-                className="aspect-[2/3] bg-gray-800 rounded-xl animate-pulse"
-              />
-            ))
-          ) : (
-            videos.map((video) => (
-              <div
-                key={video.id}
-                onClick={() => handleVideoClick(video)}
-                className="aspect-[2/3] rounded-xl overflow-hidden cursor-pointer group relative bg-gray-900"
-              >
-                {/* Video preview */}
-                <video
-                  poster={video.image}
-                  preload="metadata"
-                  muted
-                  playsInline
-                  className="w-full h-full object-cover transition-transform group-hover:scale-110"
-                  src={getBestVideoQuality(video.video_files)}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.play().catch(() => {});
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.pause();
-                    e.currentTarget.currentTime = 0;
-                  }}
-                />
+        {error && <p className="text-red-400 text-sm mb-4">{error}</p>}
 
-                {/* Duration badge */}
-                <div className="absolute bottom-2 right-2 bg-black bg-opacity-70 px-2 py-1 rounded text-xs text-white">
-                  {video.duration}s
-                </div>
-
-                {/* Favorite button con tooltip y estado de carga */}
-                <button
-                  onClick={(e) => handleToggleFavorite(e, video.id, video)}
-                  disabled={isTogglingFavorite === video.id}
-                  className={`absolute top-2 right-2 p-2 bg-black bg-opacity-70 rounded-full hover:bg-opacity-90 transition-all z-10 group ${
-                    isTogglingFavorite === video.id ? 'cursor-wait opacity-70' : ''
-                  }`}
-                  aria-label={isFavorite(video.id) ? "Quitar de favoritos" : "Agregar a favoritos"}
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4">
+          {isLoading
+            ? placeholders.map((_, i) => (
+                <div key={i} className="aspect-[2/3] bg-gray-800/50 rounded-lg animate-pulse" />
+              ))
+            : videos.map((video) => (
+                <div
+                  key={video.id}
+                  onClick={() => handleVideoClick(video)}
+                  className="aspect-[2/3] rounded-lg overflow-hidden cursor-pointer group relative bg-gray-900 hover:ring-2 hover:ring-red-500/50 transition-all"
                 >
-                  <Heart
-                    size={20}
-                    className={`transition-colors ${
-                      isFavorite(video.id)
-                        ? "fill-red-500 text-red-500"
-                        : "text-white hover:text-red-500"
-                    } ${isTogglingFavorite === video.id ? 'animate-pulse' : ''}`}
+                  <video
+                    poster={video.image}
+                    preload="metadata"
+                    muted
+                    playsInline
+                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                    src={getBestVideoQuality(video.video_files)}
+                    onMouseEnter={(e) => e.currentTarget.play().catch(() => {})}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.pause();
+                      e.currentTarget.currentTime = 0;
+                    }}
                   />
-                  {/* Tooltip */}
-                  <span className="absolute right-10 top-1/2 -translate-y-1/2 bg-black text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
-                    {isFavorite(video.id)
-                      ? "Quitar de favoritos"
-                      : "Agregar a favoritos"}
-                  </span>
-                </button>
-              </div>
-            ))
-          )}
+
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+
+                  <div className="absolute bottom-2 right-2 bg-black/80 px-2 py-0.5 rounded text-xs font-medium text-white">
+                    {video.duration}s
+                  </div>
+
+                  <button
+                    onClick={(e) => handleToggleFavorite(e, video.id, video)}
+                    disabled={isTogglingFavorite === video.id}
+                    className={`absolute top-2 right-2 p-1.5 bg-black/60 hover:bg-black/80 rounded-full transition-all ${
+                      isTogglingFavorite === video.id ? "cursor-wait opacity-50" : ""
+                    }`}
+                    aria-label={isFavorite(video.id) ? "Quitar de favoritos" : "Agregar a favoritos"}
+                  >
+                    <Heart
+                      size={18}
+                      className={`transition-all ${
+                        isFavorite(video.id)
+                          ? "fill-red-500 text-red-500"
+                          : "text-white"
+                      } ${isTogglingFavorite === video.id ? "animate-pulse" : ""}`}
+                    />
+                  </button>
+                </div>
+              ))}
         </div>
       </section>
 
-      {/* Modal para reproducir video */}
       {selectedVideo && (
-        <div 
-          className="fixed inset-0 bg-black bg-opacity-95 z-50 flex items-center justify-center p-8"
+        <div
+          className="fixed inset-0 bg-black/95 backdrop-blur-sm z-50 overflow-y-auto"
           onClick={closeModal}
         >
-          <div 
-            className="relative w-full max-w-4xl max-h-[85vh] flex flex-col"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Botón cerrar con tooltip */}
-            <button
-              onClick={closeModal}
-              className="absolute -top-10 right-0 text-white text-3xl hover:text-gray-300 transition-colors z-10 group"
-              aria-label="Cerrar"
+          <div className="min-h-screen flex items-start justify-center p-4 py-8">
+            <div
+              className="relative w-full max-w-4xl bg-[#1a1a1a] rounded-xl overflow-hidden"
+              onClick={(e) => e.stopPropagation()}
             >
-              ✕
-              <span className="absolute right-8 top-1/2 -translate-y-1/2 bg-black text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
-                Cerrar video
-              </span>
-            </button>
-
-            <video
-              controls
-              autoPlay
-              className="w-full max-h-[75vh] rounded-lg shadow-2xl object-contain bg-black"
-              src={getBestVideoQuality(selectedVideo.video_files)}
-            >
-              Tu navegador no soporta la reproducción de video.
-            </video>
-
-            <div className="mt-4 text-white flex justify-between items-center">
-              <div>
-                <p className="text-lg">
-                  <span className="font-semibold">Creado por:</span> {selectedVideo.user.name}
-                </p>
-                <p className="text-sm text-gray-400 mt-1">
-                  Duración: {selectedVideo.duration} segundos
-                </p>
-              </div>
-              
-              {/* Botón de favorito dentro del modal con tooltip */}
               <button
-                onClick={(e) => handleToggleFavorite(e, selectedVideo.id, selectedVideo)}
-                disabled={isTogglingFavorite === selectedVideo.id}
-                className={`p-3 bg-gray-800 hover:bg-gray-700 rounded-full transition-all relative group ${
-                  isTogglingFavorite === selectedVideo.id ? 'cursor-wait opacity-70' : ''
-                }`}
-                aria-label={isFavorite(selectedVideo.id) ? "Quitar de favoritos" : "Agregar a favoritos"}
+                onClick={closeModal}
+                className="absolute top-4 right-4 z-20 w-10 h-10 flex items-center justify-center bg-black/70 hover:bg-black/90 rounded-full text-white transition-colors"
+                aria-label="Cerrar"
               >
-                <Heart
-                  size={24}
-                  className={`transition-colors ${
-                    isFavorite(selectedVideo.id)
-                      ? "fill-red-500 text-red-500"
-                      : "text-white hover:text-red-500"
-                  } ${isTogglingFavorite === selectedVideo.id ? 'animate-pulse' : ''}`}
-                />
-                {/* Tooltip */}
-                <span className="absolute left-full ml-2 top-1/2 -translate-y-1/2 bg-black text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
-                  {isFavorite(selectedVideo.id)
-                    ? "Quitar de favoritos"
-                    : "Agregar a favoritos"}
-                </span>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M18 6L6 18M6 6l12 12" />
+                </svg>
               </button>
+
+              <div className="relative bg-black">
+                <video
+                  controls
+                  autoPlay
+                  className="w-full aspect-video"
+                  src={getBestVideoQuality(selectedVideo.video_files)}
+                >
+                  Tu navegador no soporta la reproducción de video.
+                </video>
+              </div>
+
+              <div className="p-6 space-y-6">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex-1">
+                    <h3 className="text-white text-lg font-medium mb-1">
+                      {selectedVideo.user.name}
+                    </h3>
+                    <p className="text-gray-400 text-sm">
+                      {selectedVideo.duration} segundos
+                    </p>
+                  </div>
+
+                  <button
+                    onClick={(e) => handleToggleFavorite(e, selectedVideo.id, selectedVideo)}
+                    disabled={isTogglingFavorite === selectedVideo.id}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-full transition-all ${
+                      isFavorite(selectedVideo.id)
+                        ? "bg-red-600 hover:bg-red-700 text-white"
+                        : "bg-gray-800 hover:bg-gray-700 text-white"
+                    } ${isTogglingFavorite === selectedVideo.id ? "cursor-wait opacity-50" : ""}`}
+                  >
+                    <Heart
+                      size={18}
+                      className={isFavorite(selectedVideo.id) ? "fill-current" : ""}
+                    />
+                    <span className="text-sm font-medium">
+                      {isFavorite(selectedVideo.id) ? "Guardado" : "Guardar"}
+                    </span>
+                  </button>
+                </div>
+
+                <div className="border-t border-gray-800 pt-6">
+                  <Comments videoId={selectedVideo.id} />
+                </div>
+              </div>
             </div>
           </div>
         </div>

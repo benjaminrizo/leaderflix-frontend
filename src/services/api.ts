@@ -268,3 +268,113 @@ export async function removeFavorite(userId: string, videoId: number) {
 
   return await response.json();
 }
+// ============================================
+// FUNCIONES DE COMENTARIOS 
+// ============================================
+
+/**
+ * Get all comments for a specific video
+ * @param {number} videoId - Video ID
+ * @returns {Promise<Array>} Array of comments
+ */
+export async function getComments(videoId: number) {
+  const token = localStorage.getItem("token");
+
+  const response = await fetch(`${API_URL}/comments/${videoId}`, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error("Error al obtener comentarios");
+  }
+
+  return await response.json();
+}
+
+/**
+ * Add a comment to a video
+ * @param {Object} commentData - Comment information
+ * @param {number} commentData.video_id - Video ID
+ * @param {string} commentData.user_id - User ID
+ * @param {string} commentData.comment_text - Comment content
+ * @returns {Promise<any>} Created comment
+ */
+export async function addComment(commentData: {
+  video_id: number;
+  user_id: string;
+  comment_text: string;
+}) {
+  const token = localStorage.getItem("token");
+
+  const response = await fetch(`${API_URL}/comments`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(commentData),
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.message || "Error al agregar comentario");
+  }
+
+  return data;
+}
+
+/**
+ * Update an existing comment
+ * @param {number} commentId - Comment ID
+ * @param {string} commentText - New comment text
+ * @returns {Promise<any>} Updated comment
+ */
+export async function updateComment(commentId: number, commentText: string) {
+  const token = localStorage.getItem("token");
+
+  const response = await fetch(`${API_URL}/comments/${commentId}`, {
+    method: "PUT",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ comment_text: commentText }),
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.message || "Error al actualizar comentario");
+  }
+
+  return data;
+}
+
+/**
+ * Delete a comment
+ * @param {number} commentId - Comment ID
+ * @returns {Promise<any>} Deletion confirmation
+ */
+export async function deleteComment(commentId: number) {
+  const token = localStorage.getItem("token");
+
+  const response = await fetch(`${API_URL}/comments/${commentId}`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (!response.ok) {
+    const data = await response.json();
+    throw new Error(data.message || "Error al eliminar comentario");
+  }
+
+  return await response.json();
+}
